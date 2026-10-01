@@ -47,7 +47,7 @@ Recorded: 2026-10-01 (Africa/Lagos)
 - Zallet image: `zodlinc/zallet:v0.1.0-beta.1@sha256:1849b4469875dc0165942c06d15fa6a7da76b2d43bade578cc8e5903a639869d`
 - Regtest upgrade schedule: NU5, NU6, NU6.1, NU6.2, and NU6.3 at height 2
 - Selected substrate: Z3 commit `e84ce9fd8e864ff0b2a8a62f6ce14392145db0fb`, with Zebra 6.2.3 and the later Zaino 0.10.1 image override below.
-- Runtime: Zebra and Zaino reached height 221 for the final three lifecycle repetitions; NU6.3 reported active from height 2.
+- Runtime: Zebra and Zaino reached height 230 by the end of the final three lifecycle repetitions (payment blocks 228–230); NU6.3 reported active from height 2.
 - Z3 defaults to a Zaino 0.6 image that failed explicit wallet synchronization with `Invalid shielded protocol value`. The old gRPC enum had no Ironwood value.
 - Supported image override used during the experiment: `zingodevops/zainod:0.10.1-no-tls@sha256:c8428a39d510fd59a9182a5e19cf473d6af6a4b6a672aff8b1a690e9c23c17b9`.
 - Zaino source pin used to verify protocol support: `797bc2f4c76b54903ed31a08fa63b5256303105e` (2026-09-29).
