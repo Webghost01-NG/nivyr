@@ -92,23 +92,136 @@ Before READY, query Zebra chain info and verify NU6.3 is active at or before the
 
 Current integration requires `NIVYR_SENDER_WALLET` and `NIVYR_SENDER_IDENTITY` to point to a previously initialized sender; `openWallet()` only lists/opens it. `wallet()` can initialize disposable receiving wallets, but it does not fund them.
 
-Bootstrap should provision a named local sender using `zcash-devtool` regtest wallet commands, create the identity with restrictive permissions, and preserve it under `.cache/runtime/`. The way to make that wallet's transparent mining address available to Zebra **before mining rewards** has not been recorded or validated as an end-to-end reproducible operation. This is the key implementation spike: check whether wallet initialization can create/restore deterministic disposable key material without leaking mnemonic/seed to logs or shell history, then derive the miner address and pass it as `ZEBRA_MINING__MINER_ADDRESS` through a local Compose env override. Do not reuse Z3's example miner address unless the matching private key is controlled by the provisioned wallet.
+Bootstrap should provision a named local sender using `zcash-devtool` regtest wallet commands, create the identity with restrictive permissions, and preserve it under `.cache/runtime/`. The pinned CLI can initialize its own wallet key, and Z3 can accept that wallet's P2PKH receiver as its miner address; the exact fresh-stack recreate-and-fund sequence has not yet been runtime-validated end to end. Do not reuse Z3's example miner address unless the matching private key is controlled by the provisioned wallet.
 
 ## Funding Strategy
 
 **Observed source:** local Zebra regtest coinbase rewards created by the `generate` RPC. No public network, real funds, hosted faucet, or external funding service are involved. The recorded successful sender was already shielded/funded when the integration began; the exact funding commands, miner address and key-to-wallet handoff were not retained, so full funding reproducibility remains partially unknown.
 
-**Required local path (candidate to validate):**
+**Supported local path (see the verified/source-verified sequence below):**
 
-1. Create a disposable regtest wallet and obtain a transparent miner address whose private key is controlled by that wallet.
-2. Configure Zebra's regtest `ZEBRA_MINING__MINER_ADDRESS` to that address before starting/mining on a fresh chain.
-3. Use Zebra's `generate` RPC to mine enough blocks for the coinbase outputs to mature. Zcash coinbase maturity is 100 blocks; observed shielding at height 106 failed for an output created at height 54 and was valid at height 154. The successful setup mined until eligible rewards existed.
+1. Create the disposable regtest sender wallet while the initialized Z3 chain and pinned Zaino are reachable; obtain its wallet-controlled transparent P2PKH receiver.
+2. Recreate Zebra with `ZEBRA_MINING__MINER_ADDRESS` set to that receiver, retaining the same chain volume.
+3. Use Zebra's `generate` RPC to mine enough blocks for the coinbase outputs to mature. Zcash coinbase maturity is 100 blocks; observed shielding at height 106 failed for an output created at height 54 and was valid at height 154.
 4. Sync the sender wallet through pinned Zaino so it recognizes mature transparent rewards.
-5. Use `zcash-devtool wallet shield` to move the local mining rewards into the active Ironwood pool; wait for mining/confirmation and sync again. Verify spendable Ironwood balance before READY.
+5. Use `zcash-devtool wallet shield` to move the local mining rewards into the active Ironwood pool; mine/confirm that transaction and sync again. Verify spendable Ironwood balance before READY.
 
 Funding can be automated entirely locally in principle: Zebra creates regtest coinbase value and controls block generation; the wallet owns the miner address and performs shielding. A **separate faucet service is not necessary**. A local funding/bootstrap helper is still necessary because the existing integration assumes shielded funds and mining rewards have maturity constraints. Nivyr should orchestrate key-safe wallet setup, local mining, maturity, sync, shield, and balance verification; it should not implement a faucet server, consensus, coin creation, or wallet cryptography.
 
-The Z3 init script's two activation blocks may mine to its configured address before Nivyr's sender wallet is available. Those immature rewards should not be treated as sender funding. On a new isolated stack, either provision the controlled miner address before init or explicitly mine the later funding rewards to it. Persisted-chain behavior must be handled without resetting user data.
+The Z3 init script's two activation blocks mine to its configured default address before Nivyr's sender wallet is available. They should not be treated as sender funding. The proposed sequence deliberately mines the sender's rewards after wallet creation and Zebra recreation. Persisted-chain behavior must be handled without resetting user data.
+
+## Verified Fresh Funding Flow
+
+**Result: PARTIAL.** The pinned source establishes each supported mechanism and the prior spike runtime proved coinbase-derived transparent funds can be shielded into Ironwood. This exact fresh-wallet sequence has not been rerun end-to-end from an empty Z3 volume, so its composition is source-verified but not a fresh-runtime PASS.
+
+### Source-verified ownership and interfaces
+
+- **Miner key owner:** the Nivyr sender `zcash-devtool` wallet. `wallet init` generates its own mnemonic and encrypts it to the age identity; the mnemonic need not be supplied on a command line or printed. `wallet list-addresses --receiver transparent` prints the wallet's transparent receiver. Its implementation derives that P2PKH receiver from the account's viewing key; the corresponding spending key is in the same wallet.
+- **Why this timing works:** Z3's first-run `scripts/regtest-init.sh` starts Zebra, mines two NU6.3 activation blocks, initializes Zallet, then stops the Compose project. Start the stack with the pinned Zaino image, initialize the Nivyr wallet at this current chain tip, then recreate only Zebra with the wallet-owned miner receiver. Z3's regtest overlay passes `ZEBRA_MINING__MINER_ADDRESS` from Compose interpolation into Zebra. Recreating the service without deleting its named chain volume preserves the two-block regtest chain.
+- **Coinbase recipient:** the sender wallet's bare transparent **P2PKH `t-addr`**, obtained from `wallet list-addresses --receiver transparent`. Do not use the example/default mining address unless the wallet owns its key. Coinbase funds are transparent initially; they are not Ironwood notes.
+- **Mining:** Zebra JSON-RPC `generate` with a positive block count, at `http://127.0.0.1:29232`, authenticated with the local regtest credentials configured by Z3. In Nivyr's existing helper this is `zcash.mine(n)` → Zebra RPC method `generate([n])`.
+- **Maturity:** a coinbase output needs 100 blocks of maturity before it can be spent. With the chain at height 2 and the first controlled coinbase in height 3, mining 100 controlled-reward blocks puts the next candidate spend height at 103, 100 heights after that first output. Do not rely only on requested block count: confirm the wallet reports spendable transparent balance and retry by mining additional blocks if needed.
+- **Wallet acquisition:** `wallet init` generates/owns the key material, while `wallet sync --server localhost:28137` scans Zaino's lightwalletd-compatible gRPC stream and records controlled transparent outputs. No import of an external key or faucet is needed. `wallet init` requires a running Zaino and the explicit regtest activation-heights file.
+- **Shielding:** `wallet shield --identity <age-identity> --server localhost:28137` selects the wallet's mature transparent UTXOs and submits the shielding transaction. Pinned `wallet/shield.rs` chooses Ironwood when the transaction's target height is at/after NU6.3; this regtest activates NU6.3 at height 2. The wallet performs construction/signing; Zebra mines/validates and Zaino serves wallet sync.
+- **Final readiness:** after shield transaction is mined, wait until Zaino's indexed height reaches Zebra's tip, run wallet `sync`, then `wallet balance --json --min-confirmations 1`. Require `ironwood_spendable > 0` (and, for the current integration, at least the required payment amount plus fee). The pinned command emits raw zatoshi fields including `ironwood_spendable`, `transparent_spendable`, and `chain_tip_height`; it can verify actual state without parsing the human summary. The integration sends with `minConfirmations: 1`.
+
+### Exact sequence (commands/API shapes)
+
+Run the Z3 commands from the pinned `.cache/upstream/z3` checkout. The image reference below is digest-pinned; set it when starting the indexer. Use a runtime wallet directory outside tracked files and set restrictive umask before creating wallet material.
+
+```sh
+# From the Nivyr repository root; these paths are local ignored state.
+export NIVYR_RUNTIME_ROOT="$PWD/.cache/runtime/bootstrap"
+export NIVYR_SENDER_WALLET="$NIVYR_RUNTIME_ROOT/sender"
+export NIVYR_SENDER_IDENTITY="$NIVYR_RUNTIME_ROOT/sender.age"
+export NIVYR_DEVTOOL="$PWD/.cache/upstream/zcash-devtool/target/release/zcash-devtool"
+export NIVYR_ACTIVATION_HEIGHTS="$PWD/config/regtest-activation-heights.toml"
+
+# Run remaining Z3 commands from its pinned checkout.
+cd .cache/upstream/z3
+
+# 1. Fresh Z3 regtest setup. Its two activation rewards go to Z3's configured
+# default miner address; do not count them as Nivyr sender funds.
+./scripts/regtest-init.sh
+
+# 2. Start pinned Z3 plus the Ironwood-capable Zaino indexer.
+Z3_ZAINO_IMAGE='zingodevops/zainod:0.10.1-no-tls@sha256:c8428a39d510fd59a9182a5e19cf473d6af6a4b6a672aff8b1a690e9c23c17b9' \
+  docker compose --env-file .env.regtest --profile indexer up -d
+# Poll Zebra getblockcount and Zaino getblockcount / gRPC GetLightdInfo until
+# they answer and their chain heights agree before initializing the wallet.
+
+# 3. Create an Nivyr sender connected to the running Zaino endpoint.
+# An empty line tells `wallet init` to generate a random 24-word phrase; it
+# stores the phrase encrypted to the age identity and does not print it.
+umask 077
+install -d -m 700 "$NIVYR_RUNTIME_ROOT" "$NIVYR_SENDER_WALLET"
+printf '\n' | "$NIVYR_DEVTOOL" wallet -w "$NIVYR_SENDER_WALLET" init \
+  --name NivyrSender \
+  --identity "$NIVYR_SENDER_IDENTITY" \
+  --network regtest \
+  --activation-heights "$NIVYR_ACTIVATION_HEIGHTS" \
+  --server localhost:28137
+
+# 4. Capture the wallet-controlled bare transparent P2PKH receiver from the
+# `Receiver(transparent): <t-addr>` line; fail closed if output shape changes.
+MINER_TADDR="$("$NIVYR_DEVTOOL" wallet -w "$NIVYR_SENDER_WALLET" list-addresses \
+  --receiver transparent | sed -n 's/^Receiver(transparent): //p')"
+test -n "$MINER_TADDR"
+
+# 5. Recreate only Zebra with that address. Compose reads shell env ahead of
+# --env-file; do not delete the Z3 chain volume.
+ZEBRA_MINING__MINER_ADDRESS="$MINER_TADDR" \
+  docker compose --env-file .env.regtest up -d --force-recreate zebra
+
+# 6. After Zebra RPC is ready, mine 100 controlled coinbase blocks from tip 2.
+curl --fail --silent --show-error --user zebra:zebra \
+  -H 'Content-Type: application/json' \
+  --data '{"jsonrpc":"2.0","method":"generate","params":[100],"id":1}' \
+  http://127.0.0.1:29232
+
+# 7. Wait for Zaino to reach Zebra's tip, then scan and verify mature
+# transparent funds before attempting to shield.
+"$NIVYR_DEVTOOL" wallet -w "$NIVYR_SENDER_WALLET" sync \
+  --server localhost:28137
+"$NIVYR_DEVTOOL" wallet -w "$NIVYR_SENDER_WALLET" balance \
+  --json --min-confirmations 1
+
+# 8. Shield. At NU6.3 the pinned wallet chooses Ironwood for the shield output.
+"$NIVYR_DEVTOOL" wallet -w "$NIVYR_SENDER_WALLET" shield \
+  --identity "$NIVYR_SENDER_IDENTITY" \
+  --server localhost:28137
+
+# 9. Mine the shield txid returned by the preceding command, wait for indexer convergence, sync again,
+# then require ironwood_spendable > 0 in this JSON result.
+curl --fail --silent --show-error --user zebra:zebra \
+  -H 'Content-Type: application/json' \
+  --data '{"jsonrpc":"2.0","method":"generate","params":[1],"id":1}' \
+  http://127.0.0.1:29232
+# Poll Zaino JSON-RPC getblockcount at :28237 until it reaches Zebra's height.
+"$NIVYR_DEVTOOL" wallet -w "$NIVYR_SENDER_WALLET" sync \
+  --server localhost:28137
+"$NIVYR_DEVTOOL" wallet -w "$NIVYR_SENDER_WALLET" balance \
+  --json --min-confirmations 1
+```
+
+The shield command prints its txid after successful submission. The bootstrap must retain that value for diagnostics, mine one block, wait for Zaino height convergence, resync, and then evaluate the final JSON balance. Shell variables shown above are inputs to the future orchestrator, not a claim that a Nivyr command currently sets them.
+
+### Evidence status
+
+| Claim | Status | Basis |
+|---|---|---|
+| Zebra accepts a configurable regtest miner P2PKH address through `ZEBRA_MINING__MINER_ADDRESS` | VERIFIED (source/config) | Pinned Z3 `docker-compose.regtest.yml` explicitly maps this required variable; Z3 contract identifies it as Zebra's native setting. |
+| `zcash-devtool` can create a wallet-owned miner address | VERIFIED (source/CLI) | `wallet init` creates/encrypts its own mnemonic; `list-addresses --receiver transparent` derives/prints the transparent receiver. |
+| Zebra can mine local regtest blocks through `generate` | VERIFIED (source/docs/runtime) | Pinned Z3 regtest docs/init script and existing Nivyr `mine()` call. |
+| Coinbase maturity is 100 blocks | VERIFIED (runtime + recorded failure) | Friction log records output at height 54 unavailable at 106 and eligible at 154. |
+| Wallet sync discovers transparent outputs and shield command spends mature UTXOs | VERIFIED (source/runtime class) | Pinned `zcash-devtool` sync/shield source and recorded prior coinbase-derived shield flow. |
+| Shielding targets Ironwood at active NU6.3 | VERIFIED (source/runtime) | Pinned shield implementation chooses `ShieldedPool::Ironwood` for target height >= NU6.3; previous shield/send run reached Ironwood. |
+| The exact sequence above works from an empty Z3 volume without manual intervention | UNVERIFIED | It has not been run end-to-end with a newly generated sender and its address applied to a recreated Zebra service. |
+| A separate faucet or external funds are required | VERIFIED: NO | Zebra regtest `generate` supplies coinbase rewards locally; no remote service/funds are in this flow. Initial software/image acquisition still needs network access. |
+
+### Remaining exact validation
+
+The remaining uncertainty is integration, not an unknown funding component: run the sequence above once from empty ignored Z3 volumes and confirm Compose recreating only Zebra preserves state and applies the wallet-generated address. Verify that the wallet sync reports mature `transparent_spendable`, `wallet shield` returns a txid, Zebra mines it, Zaino catches up, and the final JSON has positive `ironwood_spendable`. Until that clean-flow run is performed, do not mark fresh bootstrap **VERIFIED**.
 
 ## Environment Variables
 
@@ -159,7 +272,7 @@ Some wallet observations in `packages/test/src/nivyr.ts` parse human-oriented CL
 
 ## Top 5 Implementation Risks
 
-1. **Wallet key ↔ Zebra mining address handoff and funding.** The current repo has no recorded exact funding invocation; Z3's example `tmSR...` miner address is not proven to be controlled by the Nivyr sender. Coinbase maturity is 100 blocks, then rewards must be synced and shielded. This is a hard first task, not a presumed solved faucet.
+1. **Wallet key ↔ Zebra mining address handoff and funding.** Source supports obtaining the sender's P2PKH address and supplying it to Zebra, but the fresh wallet + Zebra recreate + maturity + shield sequence has not been run end to end. Z3's example `tmSR...` miner address is not proven to be controlled by the Nivyr sender. Coinbase maturity is 100 blocks, then rewards must be synced and shielded.
 2. **Z3 pin acquisition and local configuration without upstream edits.** Z3 is pinned to a commit but expects generated/live config files, and `regtest-init.sh` starts/stops services and assumes no running project containers. Bootstrap must use its supported workflow without mutating tracked upstream content or interfering with another stack.
 3. **Zaino image override and protocol compatibility.** Z3 defaults to Zaino 0.6; the tested Ironwood wallet requires the digest-pinned 0.10.1 no-TLS image. Omitting the override makes wallet sync fail despite NU6.3 being active.
 4. **Wallet persistence, retries and cleanup safety.** Reusing wallet state must not reinitialize identities, double-fund, or confuse chains; partial startup must not delete volumes or affect unrelated Z3 projects.
