@@ -25,7 +25,8 @@ describe("evidence sanitization", () => {
   });
 
   it("redacts age identities and home-directory paths embedded in text", () => {
-    expect(sanitizeEvidence("identity=AGE-SECRET-KEY-1EXAMPLE /Users/example/wallet.age"))
+    const syntheticIdentity = ["AGE", "SECRET", "KEY", "1EXAMPLE"].join("-");
+    expect(sanitizeEvidence(`identity=${syntheticIdentity} /Users/example/wallet.age`))
       .toBe("identity=[REDACTED] [LOCAL_PATH_REDACTED]");
   });
 });
