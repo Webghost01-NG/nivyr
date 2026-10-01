@@ -1,0 +1,7 @@
+Date: 2026-10-01
+Command: npm run test:integration (with real Zebra 6.2.3 + Zaino 0.10.1 + zcash-devtool)
+Result: RED, 3 of 3 scenarios failed.
+Failure: expected invoice status 'unpaid' after the payment was mined but before the recipient wallet scanned it; sample app returned 'paid'.
+Interpretation: the app treated chain confirmation as recipient observation.
+After the fix, app settlement requires the wallet to detect the payment and requires exact amount and memo equality.
+No test payment or wallet behavior was mocked.

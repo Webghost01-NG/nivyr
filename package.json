@@ -7,7 +7,15 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "merchant": "node --experimental-strip-types examples/merchant/server.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/packages/test/src/index.d.ts",
+      "import": "./dist/packages/test/src/index.js"
+    }
   },
   "devDependencies": {
     "@types/node": "24.7.0",
