@@ -8,6 +8,10 @@
 
 Fedora Linux 44, x86_64, 4 CPUs, 7.6 GiB RAM; Docker 29.8.1, Compose 5.5.1; Node 22.23.1, npm 10.9.8; TypeScript 7.0.2, Vitest 5.0.3; Rust 1.98.0. Full machine and dependency pins are in [environment.md](environment.md).
 
+## Bootstrap verification
+
+**PASS on this host.** A disposable fresh runtime started at height 0 under its own Compose project with a new wallet, mined 100 sender-controlled rewards plus 100 maturity blocks, and shielded the mature funds without a faucet or manual intervention. The resulting version-6 transaction had 4 Ironwood actions, no Orchard/Sapling components, and confirmed at height 203; after sync the wallet had 62,499,480,000 zatoshi spendable in Ironwood. `npm run nivyr:up` and the real integration test passed on the isolated runtime; preserved-state restart reused the wallet and passed integration again. Details and sanitized evidence are in [bootstrap-plan.md](../bootstrap-plan.md) and [bootstrap evidence](../evidence/bootstrap/). Second-machine validation remains **UNVERIFIED**.
+
 ## Backend
 
 ZecKit 1.2.0 at `e68d860` was rejected: its documented activation configuration ends at NU6.1 and its tested wallet path is Orchard-specific. Z3 at `e84ce9f` was used with Zebra 6.2.3 and an explicit Zaino 0.10.1 digest override (release source `3244a74`). Z3's default Zaino 0.6 image could not serve the Ironwood subtree request from the current wallet client. No upstream repository was modified.
@@ -68,8 +72,8 @@ Three of three post-fix integration runs passed real v6 Ironwood transactions, p
 
 ## What Nivyr must not own
 
-Consensus, indexing, wallet cryptography, mining implementation, test runner behavior, generic app semantics, or another local devnet. Existing upstream tools already provide these layers.
+Consensus, indexing, wallet cryptography, mining implementation, test runner behavior, generic app semantics, or another local devnet. Existing upstream tools already provide these layers. The Nivyr bootstrap orchestrates pinned upstream components locally; it does not implement the node, wallet, indexer, or mining protocol.
 
 ## Final Product Decision
 
-**REPOSITION TO LIFECYCLE LIBRARY.** The strongest experimentally validated primitive is deterministic mined-but-unscanned control followed by explicit scan and later memo availability. Three real Ironwood runs prove that boundary and a tiny external HTTP app test uses it to catch premature invoice settlement. There is meaningful Zcash-specific glue across Zebra, Zaino, and the wallet CLI, especially because the default stack pin did not agree on Ironwood protocol support. The evidence does not justify a new test runner or general application scenario framework: keep Vitest and app-specific business assertions. Before presenting this as broadly easy to adopt, add a reproducible stack bootstrap/faucet and validate a clean checkout on another machine.
+**REPOSITION TO LIFECYCLE LIBRARY.** The strongest experimentally validated primitive is deterministic mined-but-unscanned control followed by explicit scan and later memo availability. Real Ironwood runs prove that boundary and a tiny external HTTP app test catches premature invoice settlement. There is meaningful Zcash-specific glue across Zebra, Zaino, and the wallet CLI. A one-command pinned local bootstrap now funds itself from mature regtest coinbase rewards; no faucet is necessary. The evidence still does not justify a new test runner or general application scenario framework: keep Vitest and app-specific business assertions. Next, validate the documented bootstrap from a genuinely separate machine and replace remaining CLI-text observations with stable structured responses where available.

@@ -1,0 +1,15 @@
+{
+  "before_height": 2,
+  "after_height": 102,
+  "controlled_blocks_mined": 100,
+  "first_block_hash": "58e939a2e42cf869ff9fd270537a8c895030e497f0a0bf58e62fcbcf3aff0645",
+  "last_block_hash": "83b4d293047f8b66e6bb81d3de43689ab3cdcd6e75f2325e81caf61c200f3e35",
+  "first_reward_block_height": 3,
+  "first_reward_coinbase_txid": "db2e9d95aed198b7f15c4479373309a4a5211cabe7431c710fc41ea8308de0b0",
+  "first_reward_coinbase_output_recipients": [
+    "tmWAF19WCNqAWKTWArYjeNsaL9sWQRu8RpW"
+  ],
+  "wallet_miner_address": "tmWAF19WCNqAWKTWArYjeNsaL9sWQRu8RpW",
+  "first_reward_output_matches_wallet": true,
+  "nu6_3_status": "active"
+}

@@ -22,29 +22,18 @@ Observed payments used transaction version 6 and Ironwood actions, with no Orcha
 
 ## Quickstart
 
-Requirements: Node.js 22.23.1+, npm, Docker Engine and Compose, plus a local Z3 regtest stack using the versions above. The stack must be started with the pinned Zaino 0.10.1 image override. A regtest sender wallet with spendable shielded balance must exist. The second-machine run is still unverified.
-
-When starting the Z3 indexer service, set `Z3_ZAINO_IMAGE` to the full pinned reference from `docs/spike/environment.md`; Z3's default image is too old for Ironwood wallet sync. The integration test assumes the sender wallet has already been funded and shielded on this local regtest chain.
-
-Install dependencies and set the paths for your local environment:
+Requirements: Node.js 22.23.1+, npm, Docker Engine with Compose v2.24.4+, `git`, `curl`, and `openssl`. Docker must be running and accessible to your user. First startup fetches pinned Z3 and wallet source as needed, pulls pinned container images, then mines/matures local regtest funds. Mining and shielding took a few minutes in the isolated run; if the pinned wallet binary is not cached, its first Rust build took about 24 minutes on the research machine. Second-machine validation remains **UNVERIFIED**.
 
 ```sh
 npm ci
-export NIVYR_DEVTOOL=/path/to/zcash-devtool
-export NIVYR_ACTIVATION_HEIGHTS="$PWD/config/regtest-activation-heights.toml"
-export NIVYR_SENDER_WALLET=/path/to/regtest/sender-wallet
-export NIVYR_SENDER_IDENTITY=/path/to/regtest/sender.age
-export NIVYR_RUNTIME_ROOT="$PWD/.cache/runtime"
-export NIVYR_EVIDENCE_DIR="$PWD/docs/evidence/runs"
-```
-
-Run the pure unit tests and the real integration scenario:
-
-```sh
-npm test
-npm run typecheck
+npm run nivyr:up
 npm run test:integration
+npm run nivyr:down
 ```
+
+`nivyr:up` runs a local regtest-only Z3 stack, verifies NU6.3 activation and indexer readiness, creates/reuses a disposable sender wallet, mines local coinbase rewards, shields them into Ironwood, and checks positive `ironwood_spendable`. No faucet or external ZEC is used. The Z3, Zebra, Zaino and wallet source pins are recorded above and in [environment.md](docs/spike/environment.md). The first wallet build may require Rust/Cargo if the pinned release binary is not already cached. Runtime data, wallet identity and local generated configuration stay in ignored `.cache/` paths. `nivyr:down` stops only Nivyr's Compose project and preserves its volumes/wallet for restart. It does not delete local state.
+
+`npm test`, `npm run typecheck`, and `npm run build` run the unit, TypeScript, and build checks. `npm run test:integration` uses the managed bootstrap configuration; the lifecycle scenario sends real Ironwood transactions and records sanitized run evidence under `docs/evidence/bootstrap/integration/`.
 
 The integration test creates disposable recipient wallets, sends three real Ironwood payments, records pre-mine/post-mine and pre-sync/post-sync states, and checks a tiny merchant service only through HTTP. Runtime wallet files and credentials stay under ignored `.cache/` paths; evidence contains no seeds or private keys.
 
@@ -84,4 +73,4 @@ The example merchant is a minimal HTTP-only reference application in `examples/m
 
 Nivyr owns only tested lifecycle orchestration and observation: block mining, transaction state, independent indexer height, explicit wallet sync, wallet detection, and memo availability after enhancement. Vitest remains the test runner. Z3/Zebra/Zaino and `zcash-devtool` remain the infrastructure and cryptographic implementations.
 
-See [architecture](docs/architecture.md), [spike report](docs/spike/spike-report.md), and [known limitations](docs/limitations.md).
+See [architecture](docs/architecture.md), [bootstrap plan and verified runtime flow](docs/bootstrap-plan.md), [spike report](docs/spike/spike-report.md), and [known limitations](docs/limitations.md).

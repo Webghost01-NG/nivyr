@@ -1,0 +1,8 @@
+{
+  "attempted_at_wallet_tip": 102,
+  "target_height": 103,
+  "rejected": true,
+  "reason": "Zebra consensus rejected a transparent coinbase input from height 86 as immature until height 186",
+  "wallet_listed_transactions_after_rejection": 101,
+  "zebra_mempool_txids": []
+}

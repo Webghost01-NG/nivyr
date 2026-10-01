@@ -45,6 +45,9 @@ describe("real Ironwood lifecycle", () => {
       devtoolPath: required("NIVYR_DEVTOOL"),
       walletRoot: runtimeRoot,
       activationHeightsPath: required("NIVYR_ACTIVATION_HEIGHTS"),
+      ...(process.env.NIVYR_LIGHTWALLETD_ADDRESS && { lightwalletdAddress: process.env.NIVYR_LIGHTWALLETD_ADDRESS }),
+      ...(process.env.NIVYR_ZEBRA_RPC_URL && { zebraRpcUrl: process.env.NIVYR_ZEBRA_RPC_URL }),
+      ...(process.env.NIVYR_ZAINO_RPC_URL && { zainoRpcUrl: process.env.NIVYR_ZAINO_RPC_URL }),
     });
     sender = await nivyr.openWallet(
       "Alice",
