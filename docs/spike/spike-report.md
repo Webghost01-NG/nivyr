@@ -50,7 +50,7 @@ Details are in [friction-log.md](friction-log.md).
 
 ## Timings
 
-Three Vitest repetitions after warm-up: wallet creation 1.5–2.2s; shielded send/broadcast construction 8.7–9.2s; mining 0.9–1.0s; indexer convergence 0.1–0.2s; wallet sync 0.4–0.5s; memo enhancement 0.5–0.6s; full scenario 12.4–13.4s. These are three runs on one host, not a general performance claim. Building `zcash-devtool` took about 24 minutes. Stack cold-start time was not measured from a clean checkout.
+Three Vitest repetitions after warm-up: wallet creation 1.7–2.4s; shielded send/broadcast construction 7.8–8.6s; mining 0.8–0.9s; indexer convergence 0.5–1.0s; wallet sync 0.4–0.8s; memo enhancement 0.5–0.7s; scenario through memo enhancement 12.6–13.2s. These are three runs on one host, not a general performance claim. Building `zcash-devtool` took about 24 minutes. Stack cold-start time was not measured from a clean checkout.
 
 ## Repeatability
 
