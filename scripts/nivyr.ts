@@ -198,6 +198,11 @@ function ensurePrerequisites(): void {
   requireCommand("docker", ["--version"]);
   requireCommand("docker", ["compose", "version", "--short"], [2, 24, 4]);
   commandText("docker", ["info"], { timeoutMs: 20_000 });
+  const cachedWalletBinary = join(walletSource, "target", "release", "zcash-devtool");
+  if (!existsSync(cachedWalletBinary)) {
+    requireCommand("rustc", ["--version"]);
+    requireCommand("cargo", ["--version"]);
+  }
 }
 
 function ensureGitSource(path: string, remote: string, commit: string): void {
@@ -242,7 +247,6 @@ async function ensurePinnedSources(): Promise<string> {
   if (!existsSync(cachedWalletBinary)) {
     const walletBuildSource = join(runtimeRoot, "zcash-devtool-source");
     extractPinnedArchive(walletSource, walletCommit, walletBuildSource);
-    requireCommand("cargo", ["--version"]);
     log("Building pinned zcash-devtool with regtest_support (first build may take several minutes)");
     commandText("cargo", ["build", "--release", "--locked", "--features", "regtest_support"], {
       cwd: walletBuildSource,
@@ -277,12 +281,12 @@ function envFileContents(): string {
     "ZEBRA_HEALTH__MIN_CONNECTED_PEERS=0",
     `ZEBRA_MINING__MINER_ADDRESS=${defaultMinerAddress}`,
     "Z3_ZEBRA_RPC_PORT=18232",
-    `Z3_ZEBRA_HOST_RPC_PORT=${ports.zebraRpc}`,
-    `Z3_ZEBRA_HOST_HEALTH_PORT=${ports.zebraHealth}`,
-    `Z3_ZAINO_HOST_GRPC_PORT=${ports.zainoGrpc}`,
-    `Z3_ZAINO_HOST_JSON_RPC_PORT=${ports.zainoJsonRpc}`,
-    `Z3_ZALLET_HOST_RPC_PORT=${ports.zalletRpc}`,
-    `Z3_REGTEST_RPC_ROUTER_HOST_PORT=${ports.router}`,
+    `Z3_ZEBRA_HOST_RPC_PORT=127.0.0.1:${ports.zebraRpc}`,
+    `Z3_ZEBRA_HOST_HEALTH_PORT=127.0.0.1:${ports.zebraHealth}`,
+    `Z3_ZAINO_HOST_GRPC_PORT=127.0.0.1:${ports.zainoGrpc}`,
+    `Z3_ZAINO_HOST_JSON_RPC_PORT=127.0.0.1:${ports.zainoJsonRpc}`,
+    `Z3_ZALLET_HOST_RPC_PORT=127.0.0.1:${ports.zalletRpc}`,
+    `Z3_REGTEST_RPC_ROUTER_HOST_PORT=127.0.0.1:${ports.router}`,
     `Z3_ZEBRA_IMAGE=${zebraImage}`,
     `Z3_ZAINO_IMAGE=${zainoImage}`,
     `Z3_ZALLET_IMAGE=${zalletImage}`,
@@ -486,7 +490,7 @@ async function ensureWallet(state: BootstrapState): Promise<string> {
       "--identity", state.senderIdentity,
       "--network", "regtest",
       "--activation-heights", state.activationHeights,
-      "--server", `localhost:${ports.zainoGrpc}`,
+      "--server", `127.0.0.1:${ports.zainoGrpc}`,
     ], { input: "\n", timeoutMs: 120_000 });
   }
   const addressOutput = commandText(state.devtoolPath, [
@@ -600,7 +604,7 @@ async function ensureFunding(state: BootstrapState, rpc: ReturnType<typeof zebra
   await mineToHeight(maturityTarget, rpc);
   height = await chainHeight(rpc);
   await waitForIndexer(height);
-  walletCommand(state, ["sync", "--server", `localhost:${ports.zainoGrpc}`]);
+  walletCommand(state, ["sync", "--server", `127.0.0.1:${ports.zainoGrpc}`]);
   const transparent = walletBalance(state);
   if (transparent.chain_tip_height < height) {
     throw new Error(`Sender wallet scan is at ${transparent.chain_tip_height}, below chain height ${height}`);
@@ -613,7 +617,7 @@ async function ensureFunding(state: BootstrapState, rpc: ReturnType<typeof zebra
   if (!state.shieldTxid) state.shieldTxid = await recoverPendingShield(state, rpc);
   if (!state.shieldTxid) {
     log("Shielding mature local coinbase rewards to the NU6.3-active pool");
-    const output = walletCommand(state, ["shield", "--identity", state.senderIdentity, "--server", `localhost:${ports.zainoGrpc}`]);
+    const output = walletCommand(state, ["shield", "--identity", state.senderIdentity, "--server", `127.0.0.1:${ports.zainoGrpc}`]);
     const matches = [...output.matchAll(/\b([0-9a-f]{64})\b/g)];
     state.shieldTxid = matches.at(-1)?.[1];
     if (!state.shieldTxid) throw new Error(`wallet shield returned no transaction id: ${output.slice(-1000)}`);
@@ -637,7 +641,7 @@ async function ensureFunding(state: BootstrapState, rpc: ReturnType<typeof zebra
   const txHeight = shield.height;
   if (typeof txHeight !== "number") throw new Error(`Confirmed shield transaction has no mined height: ${state.shieldTxid}`);
   await waitForIndexer(txHeight);
-  walletCommand(state, ["sync", "--server", `localhost:${ports.zainoGrpc}`]);
+  walletCommand(state, ["sync", "--server", `127.0.0.1:${ports.zainoGrpc}`]);
   const finalBalance = walletBalance(state);
   if (finalBalance.ironwood_spendable < targetSpendableZatoshi) {
     throw new Error(`Shield confirmation did not produce the required spendable Ironwood balance: ${JSON.stringify(finalBalance)}`);
@@ -673,7 +677,7 @@ async function up(): Promise<void> {
   log(`Pinned Zebra ready at ${height}; pinned Zaino converged`);
   const senderAddress = await ensureWallet(state);
   await waitForIndexer(await chainHeight(rpc));
-  walletCommand(state, ["sync", "--server", `localhost:${ports.zainoGrpc}`]);
+  walletCommand(state, ["sync", "--server", `127.0.0.1:${ports.zainoGrpc}`]);
   let balance = walletBalance(state);
   if (balance.ironwood_spendable < targetSpendableZatoshi) {
     balance = await ensureFunding(state, rpc);
@@ -698,7 +702,7 @@ async function up(): Promise<void> {
     ironwoodSpendableZec: (balance.ironwood_spendable / 100_000_000).toFixed(8),
     zebraRpcUrl: `http://127.0.0.1:${ports.zebraRpc}`,
     zainoJsonRpcUrl: `http://127.0.0.1:${ports.zainoJsonRpc}`,
-    lightwalletdAddress: `localhost:${ports.zainoGrpc}`,
+    lightwalletdAddress: `127.0.0.1:${ports.zainoGrpc}`,
     runtimeRoot,
   };
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);

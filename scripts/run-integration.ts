@@ -23,7 +23,7 @@ try {
   environment.NIVYR_SENDER_IDENTITY ??= state.senderIdentity;
   environment.NIVYR_ZEBRA_RPC_URL ??= "http://127.0.0.1:49232";
   environment.NIVYR_ZAINO_RPC_URL ??= "http://127.0.0.1:49237";
-  environment.NIVYR_LIGHTWALLETD_ADDRESS ??= "localhost:49137";
+  environment.NIVYR_LIGHTWALLETD_ADDRESS ??= "127.0.0.1:49137";
 } catch (error) {
   if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw error;
 }

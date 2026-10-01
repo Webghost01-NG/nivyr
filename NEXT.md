@@ -2,7 +2,7 @@
 
 ## Current state
 
-- Repository `/home/web-ghost/nivyr`, branch `spike/zcash-lifecycle`.
+- Repository root, branch `spike/zcash-lifecycle`.
 - Existing lifecycle controls and reference merchant remain intact.
 - `npm run nivyr:up`, `npm run test:integration`, and `npm run nivyr:down` now orchestrate a pinned local Z3 regtest. Fresh funding uses a wallet-owned transparent P2PKH coinbase receiver, 100-block maturity, then a real Ironwood shield.
 - Clean-room Gate 1 and an isolated automated bootstrap reached positive Ironwood spendable balance. Fresh integration passed; preserved-state restart reused the wallet. Second-machine validation remains **UNVERIFIED**.

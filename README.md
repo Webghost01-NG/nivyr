@@ -22,16 +22,19 @@ Observed payments used transaction version 6 and Ironwood actions, with no Orcha
 
 ## Quickstart
 
-Requirements: Node.js 22.23.1+, npm, Docker Engine with Compose v2.24.4+, `git`, `curl`, and `openssl`. Docker must be running and accessible to your user. First startup fetches pinned Z3 and wallet source as needed, pulls pinned container images, then mines/matures local regtest funds. Mining and shielding took a few minutes in the isolated run; if the pinned wallet binary is not cached, its first Rust build took about 24 minutes on the research machine. Second-machine validation remains **UNVERIFIED**.
+Requirements: Node.js 22.23.1+, npm, stable Rust/Cargo, Docker Engine with Compose v2.24.4+, `git`, `curl`, `openssl`, and `tar`. Docker must be running and accessible to your user; loopback ports 49232, 49080, 49137, 49237, 49532, and 49818 must be free. Generated Docker port mappings bind to `127.0.0.1`. From a fresh clone, Nivyr builds the pinned `zcash-devtool` itself because the local binary cache is absent. That Rust build took about 24 minutes on the research machine. Docker images may also need downloading. Then bootstrap mines/matures local regtest funds; the measured cached-source/image run took about 196 seconds. Subsequent startup was about 5 seconds. These are local timings, not a clean second-machine result; validation remains **UNVERIFIED**.
 
 ```sh
+git clone https://github.com/Webghost01-NG/nivyr.git
+cd nivyr
+git switch spike/zcash-lifecycle
 npm ci
 npm run nivyr:up
 npm run test:integration
 npm run nivyr:down
 ```
 
-`nivyr:up` runs a local regtest-only Z3 stack, verifies NU6.3 activation and indexer readiness, creates/reuses a disposable sender wallet, mines local coinbase rewards, shields them into Ironwood, and checks positive `ironwood_spendable`. No faucet or external ZEC is used. The Z3, Zebra, Zaino and wallet source pins are recorded above and in [environment.md](docs/spike/environment.md). The first wallet build may require Rust/Cargo if the pinned release binary is not already cached. Runtime data, wallet identity and local generated configuration stay in ignored `.cache/` paths. `nivyr:down` stops only Nivyr's Compose project and preserves its volumes/wallet for restart. It does not delete local state.
+`nivyr:up` runs a local regtest-only Z3 stack, verifies NU6.3 activation and indexer readiness, creates/reuses a disposable sender wallet, mines disposable coinbase rewards, shields them into Ironwood, and checks positive `ironwood_spendable`. No mainnet/testnet funds, real ZEC, or faucet are used. Runtime data, wallet identity and generated local configuration stay in ignored `.cache/` paths. `nivyr:down` stops only Nivyr's Compose project and preserves its volumes/wallet for restart. It does not delete local state.
 
 `npm test`, `npm run typecheck`, and `npm run build` run the unit, TypeScript, and build checks. `npm run test:integration` uses the managed bootstrap configuration; the lifecycle scenario sends real Ironwood transactions and records sanitized run evidence under `docs/evidence/bootstrap/integration/`.
 

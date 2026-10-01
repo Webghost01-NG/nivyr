@@ -10,7 +10,7 @@ Implemented in `scripts/nivyr.ts` and `scripts/run-integration.ts`. The bootstra
 
 The former manual steps are now orchestrated by `npm run nivyr:up`: acquire/verify pinned sources, generate an isolated ignored Z3 runtime, run Z3's prepare-only regtest initialization, start Zebra and Zaino, wait for semantic readiness and NU6.3, create/reuse wallet and age identity, configure Zebra's miner address, mine and mature local rewards, shield to Ironwood, and verify balance. `npm run test:integration` reads the generated private runtime state; `npm run nivyr:down` stops only the Nivyr Compose project and preserves data.
 
-Manual prerequisites remain: install Node/npm, Git, Docker Engine/Compose, curl and OpenSSL; keep Docker running; allow network on first source/image acquisition. Cargo is required only if the pinned wallet binary is absent from the source cache. No manual wallet setup, funding, Zaino replacement, or Z3 command is part of normal operation.
+Manual prerequisites remain: install Node/npm, stable Rust/Cargo, Git, Docker Engine/Compose, curl, OpenSSL and tar; keep Docker running; allow network on first source/image acquisition. A fresh clone has no wallet binary cache, so it builds the pinned wallet source locally. No manual wallet setup, funding, Zaino replacement, or Z3 command is part of normal operation.
 
 ## Prerequisites
 
@@ -18,8 +18,8 @@ Manual prerequisites remain: install Node/npm, Git, Docker Engine/Compose, curl 
 - Docker Engine and Compose v2.24.4 or newer, with access to the running daemon.
 - `git`, `curl`, `openssl`; `tar` for source extraction.
 - Network access on first run to fetch pinned Git sources and digest-pinned images.
-- Cargo/Rust if the locally cached pinned `zcash-devtool` release binary is absent. The existing local build took about 24 minutes; the first-run time on another machine is unmeasured.
-- Available default ports: 49232 (Zebra RPC), 49080 (Zebra health), 49137/49237 (Zaino gRPC/JSON-RPC), 49532 (Zallet), 49818 (router). Bootstrap checks conflicts before stack startup and does not kill other processes.
+- Stable Rust/Cargo; the pinned wallet source requests the stable toolchain. A fresh clone builds `zcash-devtool` because no prebuilt binary is checked in; the local build took about 24 minutes and another machine's build time is unmeasured.
+- Available loopback-only ports: 49232 (Zebra RPC), 49080 (Zebra health), 49137/49237 (Zaino gRPC/JSON-RPC), 49532 (Zallet), 49818 (router). Bootstrap checks conflicts before stack startup and does not kill other processes. Generated Compose port mappings bind to `127.0.0.1`, not every host interface.
 
 ## Pinned Infrastructure
 
