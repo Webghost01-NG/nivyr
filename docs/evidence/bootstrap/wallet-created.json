@@ -1,7 +1,7 @@
 {
   "wallet": "disposable clean-room sender",
   "wallet_state": "new under unique runtime path",
-  "identity_secret": "not recorded",
+  "identity_secret": "[REDACTED: not captured]",
   "miner_receiver": "tmWAF19WCNqAWKTWArYjeNsaL9sWQRu8RpW",
   "initial_sync": "completed at chain height 2"
 }

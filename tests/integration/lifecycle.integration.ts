@@ -4,6 +4,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createNivyr, type Nivyr, type WalletRef } from "../../packages/test/src/index.js";
+import { sanitizeEvidence } from "../../packages/test/src/evidence.js";
 import { MerchantClient } from "../../examples/merchant/client.js";
 
 const required = (name: string): string => {
@@ -62,7 +63,7 @@ describe("real Ironwood lifecycle", () => {
     await mkdir(evidenceDir, { recursive: true });
     await writeFile(
       resolve(evidenceDir, "repeatability.json"),
-      `${JSON.stringify(evidence, null, 2)}\n`,
+      `${JSON.stringify(sanitizeEvidence(evidence), null, 2)}\n`,
       { mode: 0o644 },
     );
   });
