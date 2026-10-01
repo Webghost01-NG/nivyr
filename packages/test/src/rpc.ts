@@ -21,6 +21,7 @@ export class ZebraRpc {
       method: "POST",
       headers,
       body: JSON.stringify({ jsonrpc: "2.0", id: ++this.id, method, params }),
+      signal: AbortSignal.timeout(8_000),
     });
     if (!response.ok) throw new Error(`Zebra RPC ${method} returned HTTP ${response.status}`);
     const payload = (await response.json()) as RpcResponse<T>;

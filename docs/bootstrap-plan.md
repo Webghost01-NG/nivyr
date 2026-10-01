@@ -14,11 +14,11 @@ Manual prerequisites remain: install Node/npm, stable Rust/Cargo, Git, Docker En
 
 ## Prerequisites
 
-- Node.js 22.23.1 or newer and npm.
+- Node.js `^22.12.0 || ^24.0.0 || >=26.0.0` and npm. This matches the pinned Vitest 5 engine range and the Node features used here; the previous `22.23.1` floor was the development machine version, not a demonstrated runtime requirement.
 - Docker Engine and Compose v2.24.4 or newer, with access to the running daemon.
 - `git`, `curl`, `openssl`; `tar` for source extraction.
 - Network access on first run to fetch pinned Git sources and digest-pinned images.
-- Stable Rust/Cargo; the pinned wallet source requests the stable toolchain. A fresh clone builds `zcash-devtool` because no prebuilt binary is checked in; the local build took about 24 minutes and another machine's build time is unmeasured.
+- Stable Rust/Cargo; the pinned wallet source requests the stable toolchain. A fresh clone builds `zcash-devtool` because no prebuilt binary is checked in; the local build took about 24 minutes and another machine's build time is unmeasured. Nivyr selects Cargo's sparse crates.io protocol, uses `CARGO_HTTP_TIMEOUT=120` (Cargo's low-speed threshold) and `CARGO_NET_RETRY=6` unless the caller explicitly sets those values, and preserves the source tree plus Cargo target/cache on failure.
 - Available loopback-only ports: 49232 (Zebra RPC), 49080 (Zebra health), 49137/49237 (Zaino gRPC/JSON-RPC), 49532 (Zallet), 49818 (router). Bootstrap checks conflicts before stack startup and does not kill other processes. Generated Compose port mappings bind to `127.0.0.1`, not every host interface.
 
 ## Pinned Infrastructure
@@ -38,7 +38,7 @@ Z3's default Zaino 0.6 is incompatible with current wallet Ironwood subtree requ
 
 `npm run nivyr:up` currently performs these steps:
 
-1. Validate Node, Git, curl, OpenSSL, Docker, Compose and daemon availability.
+1. Validate Linux/macOS host, x64/arm64 architecture, supported Node, Git, tar, curl, OpenSSL, Docker, Compose, daemon availability and fixed loopback-port availability before pinned-source acquisition/build.
 2. Verify/fetch exact Z3 and zcash-devtool commits under ignored `.cache/upstream`; use an existing matching wallet release binary or build that commit with `regtest_support`.
 3. Extract pinned Z3 source to `.cache/runtime/nivyr-bootstrap/z3` and create private runtime configuration with digest-pinned images and a Nivyr-owned Compose project.
 4. Run the upstream `regtest-init.sh --prepare-only` flow, then start Zebra and wait for valid JSON-RPC chain state.
@@ -112,7 +112,9 @@ Implemented and exercised across the second run:
 
 ## Failure Recovery
 
-The command reports the failed step and preserves runtime/wallet state. Inspect `docker compose` logs from `.cache/runtime/nivyr-bootstrap/z3`, current Zebra/Zaino heights, and `.cache/runtime/nivyr-bootstrap/state.json` (never share the age identity or wallet files). Retry `npm run nivyr:up` after correcting the stated issue. Port collision checks fail before startup rather than killing the owner. Runtime config and ownership markers prevent an unexpected directory/project from being overwritten.
+The command reports the failed step and preserves runtime/wallet state. Cargo dependency failures now name crates.io, report the configured timeout/retries, and direct the user to retain `.cache` and retry. Existing pinned source and Cargo partial downloads/build output are reused. Source archive extraction uses a temporary sibling and publishes the destination only after a complete extraction, so a killed tar cannot leave a directory that blocks the next run. Other recovery steps: inspect `docker compose` logs from `.cache/runtime/nivyr-bootstrap/z3`, current Zebra/Zaino heights, and `.cache/runtime/nivyr-bootstrap/state.json` (never share the age identity or wallet files). Port collision checks fail before startup rather than killing the owner. Runtime config and ownership markers prevent an unexpected directory/project from being overwritten.
+
+Independent Ubuntu report: the source was fetched but Cargo failed a crates.io `minicbor` request after Cargo's observed 30-second default; no retry-from-that-machine result exists yet. Nivyr now selects sparse protocol, a 120-second HTTP low-speed threshold and six retries by default. The Cargo Book documents a 30-second default and configurable retries; this change is bounded and does not make an unreachable registry succeed. Independent macOS report: Node 22.14 was rejected by the former app-specific gate before infrastructure ran. The current minimum follows pinned Vitest's declared engine range; that Mac must still rerun, and Docker/Rust readiness there remains unknown.
 
 ## CLI Text Parsing Risk
 

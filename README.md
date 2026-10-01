@@ -22,19 +22,19 @@ Observed payments used transaction version 6 and Ironwood actions, with no Orcha
 
 ## Quickstart
 
-Requirements: Node.js 22.23.1+, npm, stable Rust/Cargo, Docker Engine with Compose v2.24.4+, `git`, `curl`, `openssl`, and `tar`. Docker must be running and accessible to your user; loopback ports 49232, 49080, 49137, 49237, 49532, and 49818 must be free. Generated Docker port mappings bind to `127.0.0.1`. From a fresh clone, Nivyr builds the pinned `zcash-devtool` itself because the local binary cache is absent. That Rust build took about 24 minutes on the research machine. Docker images may also need downloading. Then bootstrap mines/matures local regtest funds; the measured cached-source/image run took about 196 seconds. Subsequent startup was about 5 seconds. These are local timings, not a clean second-machine result; validation remains **UNVERIFIED**.
+Requirements: Node.js `^22.12.0 || ^24.0.0 || >=26.0.0`, npm, stable Rust/Cargo, Docker Engine with Compose v2.24.4+, `git`, `curl`, `openssl`, and `tar`. Docker must be running and accessible to your user; loopback ports 49232, 49080, 49137, 49237, 49532, and 49818 must be free. Generated Docker port mappings bind to `127.0.0.1`. The pinned Vitest 5 package supports Node 22.12+ on Node 22, 24.x, or 26+; `--experimental-strip-types` itself is available from Node 22.6. From a fresh clone, Nivyr builds the pinned `zcash-devtool` because no compiled binary is checked in. That Rust build took about 24 minutes on the research machine. It fetches crates from crates.io using Cargo's sparse protocol, a 120-second HTTP low-speed timeout and up to 6 retries by default; partial source/build/cache state is preserved after failure. Docker images may also need downloading. The cached-source/image bootstrap took about 196 seconds, and preserved-state startup about 5 seconds on the primary host. These are local timings, not independent-machine results; Ubuntu PC #2 is **BLOCKED** on a reported Cargo fetch timeout, and macOS PC #3 has not rerun after the Node gate change. See the [support matrix](docs/support-matrix.md).
 
 ```sh
 git clone https://github.com/Webghost01-NG/nivyr.git
 cd nivyr
 git switch spike/zcash-lifecycle
-npm ci
-npm run nivyr:up
-npm run test:integration
+npm ci && npm run nivyr:up && npm run test:integration
 npm run nivyr:down
 ```
 
 `nivyr:up` runs a local regtest-only Z3 stack, verifies NU6.3 activation and indexer readiness, creates/reuses a disposable sender wallet, mines disposable coinbase rewards, shields them into Ironwood, and checks positive `ironwood_spendable`. No mainnet/testnet funds, real ZEC, or faucet are used. Runtime data, wallet identity and generated local configuration stay in ignored `.cache/` paths. `nivyr:down` stops only Nivyr's Compose project and preserves its volumes/wallet for restart. It does not delete local state.
+
+If `nivyr:up` fails, stop there and read its named failure. Keep `.cache/` and retry after fixing transient network or toolchain issues; Cargo downloads and partial release-build output remain available to resume. Integration tests now stop before Vitest with a specific message if no managed READY runtime exists, state is incomplete, or Zebra/Zaino are down. They do not start infrastructure implicitly.
 
 `npm test`, `npm run typecheck`, and `npm run build` run the unit, TypeScript, and build checks. `npm run test:integration` uses the managed bootstrap configuration; the lifecycle scenario sends real Ironwood transactions and records sanitized run evidence under `docs/evidence/bootstrap/integration/`.
 
@@ -76,4 +76,4 @@ The example merchant is a minimal HTTP-only reference application in `examples/m
 
 Nivyr owns only tested lifecycle orchestration and observation: block mining, transaction state, independent indexer height, explicit wallet sync, wallet detection, and memo availability after enhancement. Vitest remains the test runner. Z3/Zebra/Zaino and `zcash-devtool` remain the infrastructure and cryptographic implementations.
 
-See [architecture](docs/architecture.md), [bootstrap plan and verified runtime flow](docs/bootstrap-plan.md), [spike report](docs/spike/spike-report.md), and [known limitations](docs/limitations.md).
+See [architecture and lifecycle signal semantics](docs/architecture.md), [bootstrap plan and verified runtime flow](docs/bootstrap-plan.md), [host support matrix](docs/support-matrix.md), [developer validation guide](docs/developer-validation.md), [spike report](docs/spike/spike-report.md), and [known limitations](docs/limitations.md).

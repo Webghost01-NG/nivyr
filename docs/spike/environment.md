@@ -72,7 +72,7 @@ Recorded: 2026-10-01 (Africa/Lagos)
 
 ## Second machine
 
-**Status: UNVERIFIED**
+**Status: BLOCKED / RETEST PENDING.** The previously blank second-machine placeholder is superseded by user-reported attempts, not successful validation: Ubuntu PC #2 blocked in Cargo dependency download; macOS PC #3 blocked at the old Node 22.23.1 gate. Host details are incomplete and no independent rerun has verified the hardening. See [support matrix](../support-matrix.md).
 
 Owner:
 

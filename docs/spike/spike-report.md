@@ -62,7 +62,7 @@ Three of three post-fix integration runs passed real v6 Ironwood transactions, p
 
 ## Second machine
 
-**UNVERIFIED.** No second-machine identity or access was provided.
+**INDEPENDENT RETEST PENDING; current attempts BLOCKED.** Ubuntu PC #2 (user report) completed `npm ci` and pinned source fetch, then Cargo timed out fetching the `minicbor` crates.io dependency after 30s; READY was not reached. macOS PC #3 (user report) used Node 22.14.0/npm 10.9.2; `npm ci` warned EBADENGINE and bootstrap stopped at the then-current `>=22.23.1` gate before infrastructure work. The latter gate has now been aligned with Vitest's declared range, and Cargo has a longer timeout/retry policy, but neither machine has rerun. See [support matrix](../support-matrix.md).
 
 ## What Nivyr would actually need to own
 

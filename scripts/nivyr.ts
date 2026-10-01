@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync as createDirectorySync, existsSync, writeFileSync as writeFileSyncNode } from "node:fs";
+import { mkdirSync as createDirectorySync, existsSync, mkdtempSync, renameSync, rmSync, writeFileSync as writeFileSyncNode } from "node:fs";
 import { chmod, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { createConnection } from "node:net";
 import { dirname, join, resolve } from "node:path";
@@ -105,11 +105,19 @@ function command(executable: string, args: readonly string[], options: CommandOp
     timeout: options.timeoutMs ?? 120_000,
     maxBuffer: 16 * 1024 * 1024,
   });
-  if (result.error) throw new Error(`${executable} could not run: ${result.error.message}`);
+  if (result.error) {
+    if (executable === "cargo" && args[0] === "build") {
+      throw new Error(`Pinned zcash-devtool source is present, but Cargo did not complete its build (${result.error.message}). Build/source/Cargo cache state was preserved. Check Rust toolchain and crates.io access, then rerun npm run nivyr:up to resume.`);
+    }
+    throw new Error(`${executable} could not run: ${result.error.message}`);
+  }
   if (result.status !== 0 && !options.allowFailure) {
     const stdout = Buffer.isBuffer(result.stdout) ? "" : result.stdout?.trim();
     const stderr = Buffer.isBuffer(result.stderr) ? "" : result.stderr?.trim();
     const detail = (stderr || stdout || `exit ${result.status}`).slice(-3000);
+    if (executable === "cargo" && args[0] === "build" && /crates\.io|failed to get|download of|timed out|timeout|network/i.test(detail)) {
+      throw new Error(`Pinned zcash-devtool source is present, but Cargo could not fetch a dependency. Nivyr sets a 120-second HTTP low-speed timeout and retries failed requests; partial Cargo/source state is preserved. Check crates.io access and rerun npm run nivyr:up to resume. Cargo detail: ${detail}`);
+    }
     throw new Error(`${executable} ${args.join(" ")} failed: ${detail}`);
   }
   return result.stdout ?? (options.binary ? Buffer.alloc(0) : "");
@@ -184,13 +192,15 @@ function requireCommand(executable: string, args: readonly string[], minimum?: r
 }
 
 function ensurePrerequisites(): void {
-  const [major, minor, patch] = process.versions.node.split(".").map(Number);
-  const actual = [major, minor, patch];
-  const minimum = [22, 23, 1];
-  for (let i = 0; i < minimum.length; i += 1) {
-    if (actual[i] > minimum[i]) break;
-    if (actual[i] < minimum[i]) throw new Error(`Node.js ${process.versions.node} found; Nivyr requires 22.23.1 or newer`);
+  if (process.platform !== "linux" && process.platform !== "darwin") {
+    throw new Error(`Host OS ${process.platform} is not supported by the bootstrap scripts; use Linux or macOS. Windows/WSL has not been verified.`);
   }
+  if (process.arch !== "x64" && process.arch !== "arm64") {
+    throw new Error(`Host architecture ${process.arch} is unsupported; use x64 or arm64. Only Linux x64 has completed end-to-end validation.`);
+  }
+  const [major, minor] = process.versions.node.split(".").map(Number);
+  const supported = (major === 22 && minor >= 12) || major === 24 || major >= 26;
+  if (!supported) throw new Error(`Node.js ${process.versions.node} found; Nivyr requires ${JSON.stringify("^22.12.0 || ^24.0.0 || >=26.0.0")} (the pinned Vitest version's supported Node range).`);
   requireCommand("git", ["--version"]);
   requireCommand("tar", ["--version"]);
   requireCommand("curl", ["--version"]);
@@ -231,12 +241,18 @@ function extractPinnedArchive(repository: string, commit: string, destination: s
     return;
   }
   createDirectorySync(dirname(destination), { recursive: true, mode: 0o700 });
-  createDirectorySync(destination, { recursive: false, mode: 0o700 });
-  const archive = commandBuffer("git", ["-C", repository, "archive", "--format=tar", commit]);
-  const extracted = spawnSync("tar", ["-xf", "-", "-C", destination], { input: archive, encoding: "utf8" });
-  if (extracted.status !== 0) throw new Error(`Could not extract pinned source ${commit}: ${extracted.stderr}`);
-  createDirectorySync(join(destination, "target"), { recursive: true, mode: 0o700 });
-  writeFileSyncNode(join(destination, ".nivyr-pin"), `${commit}\n`, { mode: 0o600 });
+  const temporary = mkdtempSync(`${destination}.nivyr-tmp-`);
+  try {
+    const archive = commandBuffer("git", ["-C", repository, "archive", "--format=tar", commit]);
+    const extracted = spawnSync("tar", ["-xf", "-", "-C", temporary], { input: archive, encoding: "utf8" });
+    if (extracted.status !== 0) throw new Error(`Could not extract pinned source ${commit}: ${extracted.stderr}`);
+    createDirectorySync(join(temporary, "target"), { recursive: true, mode: 0o700 });
+    writeFileSyncNode(join(temporary, ".nivyr-pin"), `${commit}\n`, { mode: 0o600 });
+    renameSync(temporary, destination);
+  } catch (error) {
+    rmSync(temporary, { recursive: true, force: true });
+    throw error;
+  }
 }
 
 async function ensurePinnedSources(): Promise<string> {
@@ -247,9 +263,15 @@ async function ensurePinnedSources(): Promise<string> {
   if (!existsSync(cachedWalletBinary)) {
     const walletBuildSource = join(runtimeRoot, "zcash-devtool-source");
     extractPinnedArchive(walletSource, walletCommit, walletBuildSource);
-    log("Building pinned zcash-devtool with regtest_support (first build may take several minutes)");
+    log("Building pinned zcash-devtool with regtest_support; Cargo crates.io uses a 120-second HTTP low-speed timeout and up to 6 retries");
     commandText("cargo", ["build", "--release", "--locked", "--features", "regtest_support"], {
       cwd: walletBuildSource,
+      env: {
+        ...process.env,
+        CARGO_REGISTRIES_CRATES_IO_PROTOCOL: process.env.CARGO_REGISTRIES_CRATES_IO_PROTOCOL ?? "sparse",
+        CARGO_HTTP_TIMEOUT: process.env.CARGO_HTTP_TIMEOUT ?? "120",
+        CARGO_NET_RETRY: process.env.CARGO_NET_RETRY ?? "6",
+      },
       timeoutMs: 1_800_000,
     });
     walletBinary = join(walletBuildSource, "target", "release", "zcash-devtool");
@@ -262,11 +284,7 @@ async function ensurePinnedSources(): Promise<string> {
       throw new Error(`Refusing to reuse unexpected Z3 runtime source at ${z3Runtime}`);
     }
   } else {
-    await mkdir(z3Runtime, { recursive: true, mode: 0o700 });
-    const archive = commandBuffer("git", ["-C", z3Source, "archive", "--format=tar", z3Commit]);
-    const extracted = spawnSync("tar", ["-xf", "-", "-C", z3Runtime], { input: archive, encoding: "utf8" });
-    if (extracted.status !== 0) throw new Error(`Could not prepare pinned Z3 runtime source: ${extracted.stderr}`);
-    await writeFile(marker, `${z3Commit}\n`, { mode: 0o600 });
+    extractPinnedArchive(z3Source, z3Commit, z3Runtime);
   }
   return walletBinary;
 }
@@ -344,7 +362,7 @@ async function prepareRuntime(walletBinary: string): Promise<BootstrapState> {
 }
 
 function serviceContainers(): string[] {
-  return commandText("docker", ["ps", "-aq", "--filter", `label=com.docker.compose.project=${composeProject}`])
+  return commandText("docker", ["ps", "-q", "--filter", `label=com.docker.compose.project=${composeProject}`])
     .split(/\s+/).filter(Boolean);
 }
 
@@ -365,7 +383,7 @@ async function checkPorts(): Promise<void> {
   for (const port of [ports.zebraRpc, ports.zebraHealth, ports.zainoGrpc, ports.zainoJsonRpc, ports.zalletRpc, ports.router]) {
     if (await portInUse(port)) conflicts.push(port);
   }
-  if (conflicts.length) throw new Error(`Required Nivyr regtest ports are busy: ${conflicts.join(", ")}. Stop the owning service or configure another local port set.`);
+  if (conflicts.length) throw new Error(`Required Nivyr regtest ports are busy: ${conflicts.join(", ")}. Stop the service currently using those fixed ports, then rerun npm run nivyr:up.`);
 }
 
 function zebraRpc(): (method: string, params?: readonly unknown[]) => Promise<unknown> {
@@ -546,18 +564,26 @@ async function getRawTransaction(txid: string, rpc: ReturnType<typeof zebraRpc>)
 }
 
 async function recoverPendingShield(state: BootstrapState, rpc: ReturnType<typeof zebraRpc>): Promise<string | undefined> {
-  let listed: Array<{ txid?: string; mined_height?: number | null }>;
+  let listed: Array<{ txid: string; mined_height: number | null }>;
   try {
-    listed = JSON.parse(walletCommand(state, ["list-tx", "--json"])) as Array<{ txid?: string; mined_height?: number | null }>;
-  } catch {
-    return undefined;
+    const parsed: unknown = JSON.parse(walletCommand(state, ["list-tx", "--json"]));
+    if (!Array.isArray(parsed) || parsed.some((item) => !item || typeof item !== "object"
+      || typeof item.txid !== "string" || !/^[0-9a-f]{64}$/i.test(item.txid)
+      || (item.mined_height !== null && (!Number.isInteger(item.mined_height) || item.mined_height < 0)))) {
+      throw new Error("expected an array of {txid, mined_height} records");
+    }
+    listed = parsed as Array<{ txid: string; mined_height: number | null }>;
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`Cannot safely check for an interrupted pending shield because pinned zcash-devtool list-tx --json failed validation (${detail}). Nivyr stopped before creating another shield transaction; preserve wallet state and retry after inspecting the wallet.`);
   }
-  for (const transaction of listed.filter((item) => item.mined_height == null && typeof item.txid === "string")) {
+  for (const transaction of listed.filter((item) => item.mined_height == null)) {
     try {
-      const raw = await getRawTransaction(transaction.txid!, rpc);
+      const raw = await getRawTransaction(transaction.txid, rpc);
       if ((raw.ironwood?.actions?.length ?? 0) > 0 && (raw.vin?.length ?? 0) > 0) return transaction.txid;
-    } catch {
-      // Rejected/expired local wallet transactions are absent from Zebra's mempool.
+    } catch (error) {
+      if (error instanceof Error && /failed \(-5\):/.test(error.message)) continue;
+      throw new Error(`Could not safely inspect a pending wallet transaction: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
   return undefined;
@@ -620,7 +646,7 @@ async function ensureFunding(state: BootstrapState, rpc: ReturnType<typeof zebra
     const output = walletCommand(state, ["shield", "--identity", state.senderIdentity, "--server", `127.0.0.1:${ports.zainoGrpc}`]);
     const matches = [...output.matchAll(/\b([0-9a-f]{64})\b/g)];
     state.shieldTxid = matches.at(-1)?.[1];
-    if (!state.shieldTxid) throw new Error(`wallet shield returned no transaction id: ${output.slice(-1000)}`);
+    if (!state.shieldTxid) throw new Error("Pinned zcash-devtool shield output did not contain a 64-character transaction ID. Nivyr stopped before marking the sender READY; inspect the wallet transaction list and rerun bootstrap.");
     await saveState(state);
   }
 
@@ -662,10 +688,10 @@ async function currentMinerAddress(state: BootstrapState): Promise<string> {
 async function up(): Promise<void> {
   ensurePrerequisites();
   process.umask(0o077);
+  await checkPorts();
   await mkdir(runtimeRoot, { recursive: true, mode: 0o700 });
   const walletBinary = await ensurePinnedSources();
   let state = await prepareRuntime(walletBinary);
-  await checkPorts();
   log(`Preparing isolated Compose project ${composeProject}`);
   commandText(join(z3Runtime, "scripts", "regtest-init.sh"), ["--prepare-only"], { cwd: z3Runtime });
   compose(["--profile", "indexer", "up", "-d", "zebra"]);

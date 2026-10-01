@@ -6,14 +6,14 @@ export function parseWallet(stdout: string, name: string, directory: string, ide
   const accountId = stdout.match(/Account(?: AccountUuid)?\(([0-9a-f-]{36})\)/i)?.[1];
   const address = stdout.match(/Default Address:\s*(uregtest1\S+)/)?.[1];
   if (!accountId || !address) {
-    throw new Error(`Could not parse wallet identity from zcash-devtool output: ${stdout}`);
+    throw new Error("Pinned zcash-devtool list-addresses output did not contain the expected Regtest account UUID and unified address fields. Verify that the pinned wallet binary and wallet network configuration match Nivyr.");
   }
   return { name, directory, identityFile, accountId, address };
 }
 
 export function parseTxid(stdout: string): string {
   const txid = stdout.trim().split(/\r?\n/).reverse().map((line) => line.trim()).find((value) => TXID.test(value));
-  if (!txid) throw new Error(`Could not parse transaction id from output: ${stdout}`);
+  if (!txid) throw new Error("Pinned zcash-devtool send output did not contain a 64-character transaction ID.");
   return txid;
 }
 
