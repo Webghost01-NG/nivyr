@@ -86,10 +86,6 @@ export default defineConfig({
       ],
     },
     search: { provider: "local" },
-    editLink: {
-      pattern: `${repository}/edit/main/website/:path`,
-      text: "Edit this page on GitHub",
-    },
     socialLinks: [
       { icon: "github", link: repository },
       { icon: "npm", link: "https://www.npmjs.com/package/@webghost01/nivyr" },
