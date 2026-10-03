@@ -6,7 +6,7 @@ Compatibility statements reflect completed end-to-end evidence. A green unit tes
 
 | Host | Result | Evidence |
 | --- | --- | --- |
-| Fedora Linux 44 x86_64 | **Verified**: external tarball installation, doctor, image-mode startup, real lifecycle/security tests, library import, and scoped shutdown. | [Primary Fedora record](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/hosts/fedora-primary/result.json) |
+| Fedora Linux 44 x86_64 | **Verified**: external tarball and public npm registry installation, doctor, image-mode startup, real lifecycle/security tests, library import, and scoped shutdown. | [Primary Fedora record](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/hosts/fedora-primary/result.json), [public npm run](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/public-npm-release.json) |
 
 The final packaged reliability campaign ran 20/20 successfully on this host. The image was already cached for that campaign.
 

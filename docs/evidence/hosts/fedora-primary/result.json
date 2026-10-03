@@ -15,5 +15,16 @@
   "shutdown": "PASS: project containers stopped; volumes and wallet state preserved",
   "rustCargo": "NOT INVOKED; cargo/rustc trap wrappers logged no calls",
   "note": "External project had no repository checkout. Image was already cached, so this is not a cold-image timing result.",
-  "libraryApi": "PASS: final tarball no-argument createNivyr() performed real send, mine, index, explicit sync, enhance, and memo observation (15457 ms)"
+  "libraryApi": "PASS: final tarball no-argument createNivyr() performed real send, mine, index, explicit sync, enhance, and memo observation (15457 ms)",
+  "publicRegistryRetest": {
+    "evidence": "docs/evidence/public-npm-release.json",
+    "install": "PASS from public npm registry",
+    "doctor": "PASS_WITH_LOW_DISK_ADVISORY (3.6 GiB available; 8 GiB recommended)",
+    "up": "PASS; READY at chain height 205, NU6.3 active, positive Ironwood spendable balance",
+    "test": "PASS; lifecycle and forged-txid red/green for both reference patterns",
+    "down": "PASS; Nivyr Compose resources stopped and volumes preserved",
+    "libraryImport": "PASS",
+    "typescriptDeclarations": "PASS",
+    "imageWasWarm": true
+  }
 }

@@ -4,8 +4,6 @@ Integration-testing infrastructure for Zcash payment applications.
 
 **Documentation:** [nivyr-docs.vercel.app](https://nivyr-docs.vercel.app)
 
-> **Release status:** v0.1.0 passed external package acceptance, but publication to the npm registry is pending npm's required publish authorization. The install command below becomes available once the registry lists the package.
-
 > A mined Zcash payment is not a scanned, detected, enhanced, or settled payment.
 
 Nivyr lets developers reproduce the gaps between chain knowledge, indexer knowledge, wallet knowledge, and application knowledge using real local Zcash infrastructure. It sits above Zebra, Zaino, and a Zcash wallet implementation; it does not replace a wallet, node, indexer, devnet, or general test runner.

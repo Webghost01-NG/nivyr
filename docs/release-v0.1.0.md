@@ -1,10 +1,10 @@
 # Nivyr v0.1.0 Release Record
 
-Release commit: the commit targeted by annotated Git tag `v0.1.0` (to be recorded after final release evidence is complete).
+Release commit: the final main commit targeted by annotated Git tag `v0.1.0` (recorded in the tag and final release report).
 
-Tag: `v0.1.0` (pending final release gates).
+Tag: `v0.1.0` (annotated tag; pushed after final public-registry evidence was committed).
 
-npm package: `@webghost01/nivyr@0.1.0` (package artifact acceptance passed; npm publication and registry installation are pending).
+npm package: [`@webghost01/nivyr@0.1.0`](https://www.npmjs.com/package/@webghost01/nivyr), public; `latest` points to `0.1.0`.
 
 GHCR image used by the package: `ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9`, built from zcash-devtool commit `5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8` for `linux/amd64`. This is the digest used by the external lifecycle acceptance; it remains pullable by digest.
 
@@ -14,17 +14,17 @@ Verified host: Fedora Linux 44 x86_64, Node.js 22.23.1, Docker 29.8.1, Compose 5
 
 ## Acceptance status
 
-- Package install: **PASS** from the exact npm tarball in an external Node project with no Nivyr checkout.
-- Doctor: **PASS_WITH_ADVISORY** (3.7 GiB free; 8 GiB recommended).
-- Up: **PASS**; pinned Zebra and Zaino started, NU6.3 was active, and the sender reached positive Ironwood spendable balance before READY.
-- Test: **PASS**; lifecycle and forged-txid scenarios passed immediately after fresh bootstrap.
+- Package install: **PASS** from both the exact npm tarball and the public registry in fresh external Node projects with no Nivyr checkout. Public registry details are in [public npm evidence](evidence/public-npm-release.json).
+- Doctor: **PASS_WITH_LOW_DISK_ADVISORY** on the public registry run (3.6 GiB free; 8 GiB recommended).
+- Up: **PASS**; pinned Zebra and Zaino started, NU6.3 was active, and the sender reached 624.99480000 spendable local regtest ZEC before READY.
+- Test: **PASS**; real lifecycle, forged-txid regression, and both reference application patterns passed after fresh public-package bootstrap.
 - Down: **PASS**; stopped the Nivyr-owned project and preserved its wallet and volumes.
-- Library import: **PASS**; `createNivyr()` imported from the installed package.
+- Library import: **PASS**; public-package runtime import and a TypeScript declaration/API check passed.
 - Exact final tarball regression: **PASS**; artifact SHA-512 and failed-first-attempt history are recorded in [final release regression evidence](evidence/final-release-regression.json).
 - Forged txid: **PASS** for the reference merchant fixture; mined-only settlement was reproduced and corrected wallet-observed settlement passed.
 - Adapter reuse: **PASS** across memo-based and per-invoice-destination reference API patterns; independent third-party applications are not claimed.
 - Post-fix reliability loop: **PASS**; 20/20 on the exact final tarball, 122.421s minimum / 131.516s median / 143.010s p95 / 152.526s maximum. See [machine-readable results](evidence/reliability.json).
-- Rust/Cargo: **NOT REQUIRED** in normal image mode; trap wrappers observed no invocations during package acceptance.
+- Rust/Cargo: **NOT REQUIRED** in normal image mode; wallet operations ran in the digest-pinned container.
 
 ## Known limitations
 

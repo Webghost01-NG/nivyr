@@ -21,6 +21,7 @@
     "/reference/forbidden": 404
   },
   "viewportReview": ["desktop 1440x1100", "mobile 390x844"],
-  "npmPublication": "PENDING_NPM_WRITE_AUTHORIZATION",
-  "notes": "Public docs are live. The getting-started page and homepage identify npm publication as pending; no public registry install is claimed."
+  "npmPublication": "PUBLIC_AND_VERIFIED",
+  "publicNpmEvidence": "docs/evidence/public-npm-release.json",
+  "notes": "Public docs are live; the quickstart points to the published package and public registry acceptance evidence."
 }

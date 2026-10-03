@@ -2,8 +2,6 @@
 
 This guide installs Nivyr in a normal Node project, starts its pinned local runtime, runs the packaged lifecycle verification, and shuts it down safely.
 
-> **Release status:** the `0.1.0` package passed external tarball acceptance, but public npm publication is still pending registry write authorization. The `npm install` command below will resolve once publication is complete.
-
 ## Prerequisites
 
 - Node.js `^22.12.0 || ^24.0.0 || >=26.0.0` and npm.

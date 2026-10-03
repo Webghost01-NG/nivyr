@@ -4,7 +4,7 @@ Nivyr v0.1.0 is an early developer tool. These limits describe the evidence avai
 
 - End-to-end package verification is limited to Fedora Linux 44 x86_64.
 - The packaged wallet image is linux/amd64. ARM64, Apple Silicon, Windows, and WSL are unverified.
-- Only external tarball installation has been tested so far in committed evidence; public npm install evidence must be recorded after publication.
+- Public npm registry installation, `doctor`, `up`, `test`, `down`, and package API import are verified on Fedora Linux 44 x86_64; other hosts remain unverified.
 - A cold image pull and full cold-start timing have not been measured.
 - The two application adapter examples are reference fixtures, not independent third-party applications.
 - View-only merchant wallets and chain reorganization scenarios are not verified.
