@@ -22,6 +22,6 @@ The site summarizes committed test artifacts rather than pasting full JSON recor
 
 ## Public registry evidence
 
-Public npm publication and registry installation are not claimed until the public release evidence file is committed. This page will link that artifact after the registry install has passed.
+The public `@webghost01/nivyr@0.1.0` package resolves from npm with `latest` pointing to `0.1.0`. A clean consumer project installed it from the public registry, then passed `doctor`, image-backed `up`, `test`, `down`, runtime import, and a TypeScript declaration check. See [public npm release evidence](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/public-npm-release.json).
 
 The documentation site is deployed on Vercel; its production build and route checks are recorded in [site deployment evidence](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/docs-site-deployment.json).

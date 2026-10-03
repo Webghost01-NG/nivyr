@@ -12,7 +12,7 @@
         <div class="hero-actions">
           <a class="button button-primary" href="/guide/getting-started">Get started <span aria-hidden="true">→</span></a>
           <a class="button button-quiet" href="https://github.com/Webghost01-NG/nivyr">GitHub <span aria-hidden="true">↗</span></a>
-          <a class="button button-quiet" href="https://www.npmjs.com/package/@webghost01/nivyr">npm package status <span aria-hidden="true">↗</span></a>
+          <a class="button button-quiet" href="https://www.npmjs.com/package/@webghost01/nivyr">npm <span aria-hidden="true">↗</span></a>
         </div>
       </div>
       <aside class="quickstart" aria-label="Quickstart commands">
@@ -23,7 +23,7 @@
 <span class="shell-muted">$</span> npx nivyr up
 <span class="shell-muted">$</span> npx nivyr test
 <span class="shell-muted">$</span> npx nivyr down</code></pre>
-        <p>npm publication is pending. Node.js + Docker Compose; no local Rust build in image mode.</p>
+        <p>Node.js + Docker Compose. No local Rust build in image mode.</p>
       </aside>
     </section>
 
