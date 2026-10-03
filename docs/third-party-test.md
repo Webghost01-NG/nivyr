@@ -1,6 +1,6 @@
 # External Package Test
 
-Nivyr 0.1.0 is not published to npm yet. A maintainer can share `webghost01-nivyr-0.1.0.tgz`; test it from a new Node project without cloning the Nivyr repository.
+Nivyr 0.1.0 is not published to npm yet. External tarball acceptance passed on Fedora Linux 44 x86_64. A maintainer can share `webghost01-nivyr-0.1.0.tgz`; test it from a new Node project without cloning the Nivyr repository. Public publication is waiting for npm's required two-factor authorization.
 
 Requirements: Node.js `^22.12.0 || ^24 || >=26`, npm, Docker Engine/Desktop with Compose v2, registry access, and preferably 8 GiB free disk. The current wallet image supports linux/amd64; Apple Silicon has not been validated.
 

@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "observedAt": "2026-10-03T11:56:32.647Z",
+  "observedAt": "2026-10-03T12:31:22.996Z",
   "packageVersion": "0.1.0",
-  "txid": "6db28b5d5c8674a317e99bb877b00dec51cb7b374786a9234cc79f18fd139f84",
-  "chainHeightBefore": 206,
-  "minedHeight": 207,
-  "indexedHeight": 207,
+  "txid": "2ba61154b335212da78de0b6aa8739e20d56f390bea3e15021a9a2b1edf4bc86",
+  "chainHeightBefore": 317,
+  "minedHeight": 318,
+  "indexedHeight": 318,
   "transitions": {
     "broadcast": true,
     "mined": true,
@@ -16,5 +16,5 @@
     "enhanced": true,
     "memoAvailable": true
   },
-  "durationMs": 16427
+  "durationMs": 16610
 }

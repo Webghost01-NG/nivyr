@@ -2,6 +2,7 @@ node_modules/
 dist/
 coverage/
 .cache/
+.nivyr/
 .docker/
 .zcash/
 .env
@@ -21,6 +22,7 @@ cookie
 *.log
 *.tmp
 *.temp
+*.tgz
 wallet.dat
 wallets/
 docs/evidence/private/

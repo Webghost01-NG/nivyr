@@ -41,21 +41,23 @@ The packed npm artifact ran this lifecycle from a project with no Nivyr reposito
 
 ## Install
 
-The package is prepared as `@webghost01/nivyr@0.1.0` and has **not been published**. A maintainer can provide the packed tarball; install it from an ordinary project directory:
-
-```sh
-npm install -D /path/to/webghost01-nivyr-0.1.0.tgz
-```
-
-After publication, the intended install is:
+Install the package into an ordinary project:
 
 ```sh
 npm install -D @webghost01/nivyr
 ```
 
+The 0.1.0 artifact passed external tarball acceptance, but is not yet published to npm; use the tarball install below until the maintainer completes npm's required two-factor authorization.
+
+For direct tarball installs, including package acceptance tests:
+
+```sh
+npm install -D /path/to/webghost01-nivyr-0.1.0.tgz
+```
+
 ## Quickstart
 
-The full CLI sequence has passed on the Fedora Linux 44 x86_64 productization host using an external tarball installation. The registry package is still unpublished, so use the tarball instructions above:
+The full CLI sequence has passed on the Fedora Linux 44 x86_64 productization host using an external tarball installation. If the registry version is not available, install the maintainer tarball as shown above:
 
 ```sh
 npx nivyr doctor
@@ -102,7 +104,7 @@ Zebra provides chain state; Zaino provides indexing and wallet sync transport; t
 
 ## Reproducibility
 
-Verified source pins: Z3 `e84ce9fd8e864ff0b2a8a62f6ce14392145db0fb`, Zebra `6.2.3`, Zaino `0.10.1-no-tls`, zcash-devtool `5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8`; NU6.3 activates at regtest height 2. Zebra and Zaino image digests are recorded in [stack proof](docs/evidence/stack-proof.json).
+Verified pins: Z3 `e84ce9fd8e864ff0b2a8a62f6ce14392145db0fb`, Zebra `6.2.3`, Zaino `0.10.1-no-tls`, zcash-devtool source `5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8`; NU6.3 activates at regtest height 2. The packaged wallet image is `ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9` (`linux/amd64`). Zebra and Zaino image digests are recorded in [stack proof](docs/evidence/stack-proof.json).
 
 Package runtimes use `.nivyr/` in the consumer project with an ownership marker, private wallet storage, and project-scoped Docker resources. `down` stops only that Nivyr Compose project and preserves its volumes and sender wallet.
 
@@ -113,7 +115,8 @@ Package runtimes use `.nivyr/` in the consumer project with an ownership marker,
 - [Sanitized bootstrap evidence](docs/evidence/bootstrap/)
 - [Host support matrix](docs/support-matrix.md)
 - [External tester instructions](docs/third-party-test.md)
-- [Package cold start](docs/evidence/cold-start.json) and [20-run reliability](docs/evidence/reliability.json): pending
+- [Package cold-start timing](docs/evidence/cold-start.json): image cache was warm, so no cold-pull claim is made.
+- [Packaged reliability](docs/evidence/reliability.json): 20/20 passes on the verified Fedora host.
 
 ## Supported Platforms
 
@@ -121,8 +124,8 @@ Fedora Linux 44 x86_64 is verified for external tarball install, doctor, up, tes
 
 ## Known Limitations
 
-- The public npm package is not published; obtain a maintainer-built tarball.
-- Two-application adapter reuse, packaged 20-run reliability, view-only merchant, and reorg remain pending/not tested.
+- A clean-cache image pull and full cold-start timing have not been measured.
+- The two application patterns are reference fixtures, not independent third-party applications. View-only merchant and reorg scenarios remain untested.
 - No external developer validation is recorded.
 - Wallet CLI parsing still depends on pinned human-readable output in some paths.
 
@@ -151,4 +154,4 @@ npm test
 npm run build
 ```
 
-The source-checkout lifecycle scripts and preserved-state evidence are described in [NEXT.md](NEXT.md) and [bootstrap plan](docs/bootstrap-plan.md). Keep wallet state and secrets under ignored local runtime paths. No public npm publication or merge has been performed.
+The source-checkout lifecycle scripts and preserved-state evidence are described in [NEXT.md](NEXT.md) and [bootstrap plan](docs/bootstrap-plan.md). Keep wallet state and secrets under ignored local runtime paths.

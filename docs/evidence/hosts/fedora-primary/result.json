@@ -14,5 +14,6 @@
   "integration": "PASS: real lifecycle and forged-txid red/green via npx nivyr test",
   "shutdown": "PASS: project containers stopped; volumes and wallet state preserved",
   "rustCargo": "NOT INVOKED; cargo/rustc trap wrappers logged no calls",
-  "note": "External project had no repository checkout. Image was already cached, so this is not a cold-image timing result."
+  "note": "External project had no repository checkout. Image was already cached, so this is not a cold-image timing result.",
+  "libraryApi": "PASS: final tarball no-argument createNivyr() performed real send, mine, index, explicit sync, enhance, and memo observation (15457 ms)"
 }
