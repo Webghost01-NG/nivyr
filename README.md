@@ -1,79 +1,157 @@
 # Nivyr
 
-Nivyr is a small TypeScript companion for Vitest that creates and observes real shielded Zcash lifecycle states against a local regtest stack. It coordinates `zcash-devtool`, Zebra RPC, and Zaino's JSON-RPC surface; it does not implement consensus, wallet cryptography, indexing, or a test runner.
+Integration-testing infrastructure for Zcash payment applications.
 
-The first verified capability is a payment lifecycle with current NU6.3/Ironwood transactions:
+> A mined Zcash payment is not a scanned, detected, enhanced, or settled payment.
+
+Nivyr lets developers reproduce the gaps between chain knowledge, indexer knowledge, wallet knowledge, and application knowledge using real local Zcash infrastructure. It sits above Zebra, Zaino, and a Zcash wallet implementation; it does not replace a wallet, node, indexer, devnet, or general test runner.
+
+## Problem
+
+Payment code often sees a valid mined txid before the merchant wallet has scanned it. That fact alone does not establish that this invoice received the expected amount or memo.
+
+## Insight
+
+`broadcast → mined → indexed → merchant wallet unscanned → explicit sync → detected → enhancement → memo available`
+
+Each observer has separate knowledge. Nivyr exposes those boundaries to application tests.
+
+## What Nivyr Does
+
+- Runs a local, disposable Zcash regtest using pinned infrastructure.
+- Creates real payments and exposes broadcast/mining/indexer/wallet lifecycle observations.
+- Lets tests hold the recipient wallet unscanned, then explicitly sync and enhance it.
+- Keeps the application a black box through public HTTP/API adapters.
+
+Vitest remains the test runner. `nivyr test` is intended to verify Nivyr's packaged lifecycle, not replace a user's test runner.
+
+## Forged-Txid Demo
+
+A valid mined txid alone does not prove that a merchant received the expected payment. In the packaged regtest, a reference merchant that trusts a customer-supplied mined txid incorrectly settled ORDER-42 for an unrelated destination and wrong memo. The corrected fixture remained unpaid until its wallet observed the expected destination, amount, and memo. See the [sanitized evidence](docs/evidence/packaged-forged-txid.json); this demonstrates the fixture, not any third-party merchant.
+
+## Lifecycle Model
+
+Nivyr's packaged external-project lifecycle uses real Ironwood-era transactions:
 
 ```text
-broadcast → mined → indexed → recipient sync detects amount → wallet enhancement exposes memo
+broadcast → mined → indexed → merchant wallet unscanned → sync → detected → enhance → memo
 ```
 
-The recipient can remain deliberately unscanned between mining and explicit `sync()`. This enables application tests to distinguish chain confirmation from wallet observation. The competitive research is in [docs/landscape.md](docs/landscape.md); implementation limits are in [docs/limitations.md](docs/limitations.md).
+The packed npm artifact ran this lifecycle from a project with no Nivyr repository checkout. See the [external package acceptance record](docs/evidence/package-acceptance.json), [lifecycle evidence](docs/evidence/packaged-lifecycle-20261003.json), [architecture](docs/architecture.md), and [host evidence](docs/support-matrix.md).
 
-## Verified stack
+## Install
 
-- Z3 commit `e84ce9fd8e864ff0b2a8a62f6ce14392145db0fb`
-- Zebra `6.2.3` (`zfnd/zebra:6.2.3`)
-- Zaino `0.10.1-no-tls`, pinned by digest in the [environment record](docs/spike/environment.md). Z3's default `0.6.0` image does not accept the current wallet's Ironwood protocol requests.
-- `zcash-devtool` commit `5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8`, built with `regtest_support`
-- Regtest activates NU6.3 at height 2.
+Install the package into an ordinary project:
 
-Observed payments used transaction version 6 and Ironwood actions, with no Orchard, Sapling, or transparent components. See [pool proof](docs/evidence/pool-proof.txt) and repeatable Vitest evidence at [repeatability.json](docs/evidence/runs/repeatability.json).
+```sh
+npm install -D @webghost01/nivyr
+```
+
+The 0.1.0 artifact passed external tarball acceptance, but is not yet published to npm; use the tarball install below until the maintainer completes npm's required two-factor authorization.
+
+For direct tarball installs, including package acceptance tests:
+
+```sh
+npm install -D /path/to/webghost01-nivyr-0.1.0.tgz
+```
 
 ## Quickstart
 
-Requirements: Node.js `^22.12.0 || ^24.0.0 || >=26.0.0`, npm, stable Rust/Cargo, Docker Engine with Compose v2.24.4+, `git`, `curl`, `openssl`, and `tar`. Docker must be running and accessible to your user; loopback ports 49232, 49080, 49137, 49237, 49532, and 49818 must be free. Generated Docker port mappings bind to `127.0.0.1`. The pinned Vitest 5 package supports Node 22.12+ on Node 22, 24.x, or 26+; `--experimental-strip-types` itself is available from Node 22.6. From a fresh clone, Nivyr builds the pinned `zcash-devtool` because no compiled binary is checked in. That Rust build took about 24 minutes on the research machine. It fetches crates from crates.io using Cargo's sparse protocol, a 120-second HTTP low-speed timeout and up to 6 retries by default; partial source/build/cache state is preserved after failure. Docker images may also need downloading. The cached-source/image bootstrap took about 196 seconds, and preserved-state startup about 5 seconds on the primary host. These are local timings, not independent-machine results; Ubuntu PC #2 is **BLOCKED** on a reported Cargo fetch timeout, and macOS PC #3 has not rerun after the Node gate change. See the [support matrix](docs/support-matrix.md).
+The full CLI sequence has passed on the Fedora Linux 44 x86_64 productization host using an external tarball installation. If the registry version is not available, install the maintainer tarball as shown above:
 
 ```sh
-git clone https://github.com/Webghost01-NG/nivyr.git
-cd nivyr
-git switch spike/zcash-lifecycle
-npm ci && npm run nivyr:up && npm run test:integration
-npm run nivyr:down
+npx nivyr doctor
+npx nivyr up
+npx nivyr test
+npx nivyr down
 ```
 
-`nivyr:up` runs a local regtest-only Z3 stack, verifies NU6.3 activation and indexer readiness, creates/reuses a disposable sender wallet, mines disposable coinbase rewards, shields them into Ironwood, and checks positive `ironwood_spendable`. No mainnet/testnet funds, real ZEC, or faucet are used. Runtime data, wallet identity and generated local configuration stay in ignored `.cache/` paths. `nivyr:down` stops only Nivyr's Compose project and preserves its volumes/wallet for restart. It does not delete local state.
+Normal mode defaults to the published, digest-pinned linux/amd64 wallet image. The tested `up` run used Cargo and Rust trap wrappers whose invocation log stayed empty. An available Docker/Compose host and registry access are required; ARM64 has not been tested.
 
-If `nivyr:up` fails, stop there and read its named failure. Keep `.cache/` and retry after fixing transient network or toolchain issues; Cargo downloads and partial release-build output remain available to resume. Integration tests now stop before Vitest with a specific message if no managed READY runtime exists, state is incomplete, or Zebra/Zaino are down. They do not start infrastructure implicitly.
-
-`npm test`, `npm run typecheck`, and `npm run build` run the unit, TypeScript, and build checks. `npm run test:integration` uses the managed bootstrap configuration; the lifecycle scenario sends real Ironwood transactions and records sanitized run evidence under `docs/evidence/bootstrap/integration/`.
-
-The integration test creates disposable recipient wallets, sends three real Ironwood payments, records pre-mine/post-mine and pre-sync/post-sync states, and checks a tiny merchant service only through HTTP. Runtime wallet files and credentials stay under ignored `.cache/` paths; evidence contains no seeds or private keys.
-
-## API example
+## TypeScript API
 
 ```ts
-import { createNivyr } from "nivyr";
+import { createNivyr } from "@webghost01/nivyr";
 
-const zcash = createNivyr({
-  devtoolPath: process.env.NIVYR_DEVTOOL!,
-  walletRoot: ".cache/runtime/wallets",
-  activationHeightsPath: "config/regtest-activation-heights.toml",
-});
-
-const alice = await zcash.openWallet("Alice", senderDirectory, senderIdentity);
-const bob = await zcash.wallet({ name: "Bob" });
-const txid = await zcash.pay({ from: alice, to: bob, amount: "2", memo: "ORDER-42" });
-
-const pending = await zcash.transaction(txid);
+const zcash = createNivyr();
+const sender = await zcash.managedSender();
+const recipient = await zcash.wallet({ name: "merchant-order-42" });
+const txid = await zcash.pay({ from: sender, to: recipient, amount: "0.01", memo: "ORDER-42" });
 await zcash.mine(1);
-const mined = await zcash.waitForTransaction(txid, (tx) => tx.mined);
-await zcash.waitForIndexer(mined.height!);
-expect(await zcash.received(bob, txid)).toBe(false);
-await zcash.sync(bob);
-expect((await zcash.observeWallet(bob, txid)).detected).toBe(true);
-await zcash.enhance(bob);
-expect((await zcash.observeWallet(bob, txid)).payment?.memo).toBe("ORDER-42");
+await zcash.sync(recipient);
+await zcash.enhance(recipient);
 ```
 
-The sender needs spendable test funds first. Transaction construction selects the pool from wallet consensus rules; Nivyr reports the observed pool components instead of promising a pool based on the address label. `sync()` detects the payment and amount. `enhance()` asks the wallet to fetch full transaction data; the wallet performs memo decryption.
+Explicit paths remain supported for maintainer and custom-runtime use:
 
-## Application behavior
+```ts
+const zcash = createNivyr({
+  devtoolPath: process.env.NIVYR_DEVTOOL,
+  walletRoot: ".nivyr/wallets",
+  activationHeightsPath: "node_modules/@webghost01/nivyr/config/regtest-activation-heights.toml",
+});
+```
 
-The example merchant is a minimal HTTP-only reference application in `examples/merchant`. Its regression scenario catches an app that marks an invoice paid at mined time, before the recipient wallet scans the payment. It then checks exact amount and memo handling, including a mismatched memo. Nivyr does not access the application's database.
+The package exports `createNivyr`, `Nivyr`, lifecycle types, payment adapter types, and `zecToZatoshi`.
 
-## Scope
+## Application Adapter
 
-Nivyr owns only tested lifecycle orchestration and observation: block mining, transaction state, independent indexer height, explicit wallet sync, wallet detection, and memo availability after enhancement. Vitest remains the test runner. Z3/Zebra/Zaino and `zcash-devtool` remain the infrastructure and cryptographic implementations.
+`PaymentAppAdapter` is a small HTTP/API-facing contract with `createInvoice` and `getInvoice`. It does not authorize database access. The packaged scenario runs against memo-based and per-invoice-destination reference API patterns; integration with two independent application codebases remains unproven. See [adapter evidence](docs/evidence/adapter-reuse.json).
 
-See [architecture and lifecycle signal semantics](docs/architecture.md), [bootstrap plan and verified runtime flow](docs/bootstrap-plan.md), [host support matrix](docs/support-matrix.md), [developer validation guide](docs/developer-validation.md), [spike report](docs/spike/spike-report.md), and [known limitations](docs/limitations.md).
+## Architecture
+
+Zebra provides chain state; Zaino provides indexing and wallet sync transport; the pinned zcash-devtool image provides wallet operations and memo decryption. The package owns generated Compose/runtime state under the consumer project's `.nivyr/`, marked as Nivyr-owned. Wallet containers share only the Zaino network namespace to use its plaintext local h2c endpoint; wallet files remain outside `node_modules`.
+
+## Reproducibility
+
+Verified pins: Z3 `e84ce9fd8e864ff0b2a8a62f6ce14392145db0fb`, Zebra `6.2.3`, Zaino `0.10.1-no-tls`, zcash-devtool source `5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8`; NU6.3 activates at regtest height 2. The packaged wallet image is `ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9` (`linux/amd64`). Zebra and Zaino image digests are recorded in [stack proof](docs/evidence/stack-proof.json).
+
+Package runtimes use `.nivyr/` in the consumer project with an ownership marker, private wallet storage, and project-scoped Docker resources. `down` stops only that Nivyr Compose project and preserves its volumes and sender wallet.
+
+## Evidence
+
+- [Existing real lifecycle evidence](docs/evidence/runs/repeatability.json)
+- [Ironwood pool proof](docs/evidence/pool-proof.txt)
+- [Sanitized bootstrap evidence](docs/evidence/bootstrap/)
+- [Host support matrix](docs/support-matrix.md)
+- [External tester instructions](docs/third-party-test.md)
+- [Package cold-start timing](docs/evidence/cold-start.json): image cache was warm, so no cold-pull claim is made.
+- [Packaged reliability](docs/evidence/reliability.json): 20/20 passes on the verified Fedora host.
+
+## Supported Platforms
+
+Fedora Linux 44 x86_64 is verified for external tarball install, doctor, up, test, and down. macOS Node gating, Ubuntu source-build network failure, and secondary Fedora missing Docker CLI remain distinct historical reports; none has a new package-mode retest. The wallet image is linux/amd64; ARM64 is unverified.
+
+## Known Limitations
+
+- A clean-cache image pull and full cold-start timing have not been measured.
+- The two application patterns are reference fixtures, not independent third-party applications. View-only merchant and reorg scenarios remain untested.
+- No external developer validation is recorded.
+- Wallet CLI parsing still depends on pinned human-readable output in some paths.
+
+## Existing Zcash Infrastructure
+
+Nivyr sits above Zcash infrastructure instead of implementing consensus, transaction construction, indexing, wallet cryptography, or a node. It coordinates pinned Zebra/Zaino and a wallet backend so applications can test payment lifecycle behavior.
+
+## Validation
+
+No third-party interviews or installations are recorded. Use [the validation form](docs/validation.md); do not convert maintainer testing into traction claims.
+
+## Roadmap
+
+Local npm package → reusable payment scenarios → CI support → hosted ephemeral environments → compatibility/regression platform. These are roadmap directions, not shipped features.
+
+## Colosseum
+
+Initial market: Zcash payment developers. A practical GTM path is npm discovery and GitHub examples, posts in the Zcash Forum and ecosystem developer communities, direct integration outreach to payment and wallet teams, and relevant grants/ecosystem programs; make the first install and lifecycle example easy to reproduce. Current criteria/evidence mapping is in [docs/colosseum-criteria.md](docs/colosseum-criteria.md). No demand or traction is claimed.
+
+## Development
+
+```sh
+npm ci
+npm run typecheck
+npm test
+npm run build
+```
+
+The source-checkout lifecycle scripts and preserved-state evidence are described in [NEXT.md](NEXT.md) and [bootstrap plan](docs/bootstrap-plan.md). Keep wallet state and secrets under ignored local runtime paths.

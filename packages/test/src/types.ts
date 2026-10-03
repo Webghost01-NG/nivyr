@@ -58,9 +58,9 @@ export interface WalletObservation {
 }
 
 export interface NivyrOptions {
-  readonly devtoolPath: string;
-  readonly walletRoot: string;
-  readonly activationHeightsPath: string;
+  readonly devtoolPath?: string;
+  readonly walletRoot?: string;
+  readonly activationHeightsPath?: string;
   readonly lightwalletdAddress?: string;
   readonly zebraRpcUrl?: string;
   readonly zainoRpcUrl?: string;
@@ -68,4 +68,5 @@ export interface NivyrOptions {
   readonly zebraRpcPassword?: string;
   readonly pollIntervalMs?: number;
   readonly timeoutMs?: number;
+  readonly walletBackend?: import("./process.js").WalletBackend;
 }

@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "observedAt": "2026-10-03T12:32:13.420Z",
+  "packageVersion": "0.1.0",
+  "sameScenarioMachinery": true,
+  "applications": [
+    "memo-based invoice reconciliation",
+    "per-invoice destination reconciliation"
+  ],
+  "bothSettledExpectedPayments": true
+}

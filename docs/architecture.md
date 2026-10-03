@@ -8,6 +8,8 @@ Nivyr is an in-process TypeScript helper used from ordinary Vitest tests. In thi
 | Zaino JSON-RPC and gRPC | independent indexed height; wallet lightwallet protocol connection |
 | `zcash-devtool` CLI | disposable wallet initialization, transaction construction, wallet scan, received amount and memo enhancement |
 
+The package direction adds `src/cli/index.ts`, package-relative Compose/config assets under `docker/`, and a project-local `.nivyr/` runtime with an ownership marker. Package runtime bootstrap is incomplete until the immutable devtool image is published and lifecycle readiness/funding is run from an external tarball.
+
 ## Lifecycle observations
 
 The four knowledge domains remain separate: **chain knowledge != indexer knowledge != wallet knowledge != application knowledge**. A mined transaction does not imply indexing, recipient scanning, memo availability, or application settlement.

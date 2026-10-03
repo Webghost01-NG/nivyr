@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-03",
+  "package": "@webghost01/nivyr@0.1.0",
+  "tarball": "@webghost01/nivyr@0.1.0 tarball",
+  "tarballSha512": "99c1109d1c17c0d156e7779c7a27a6a6f7ea685078dd24c273029cdfef525da866101d638a08408e68f79f33137a00b828460ec21fe859afafd4b0491ccb2976",
+  "status": "PASS",
+  "npmPublication": "NOT_PUBLISHED: npm publish returned E403 because two-factor authentication or a granular token with 2FA bypass is required",
+  "packDryRun": "PASS",
+  "externalInstall": "PASS",
+  "externalDoctor": "PASS_WITH_ADVISORIES (Fedora 44 x86_64; Docker and GHCR reachable; 3.7 GiB available disk advisory)",
+  "externalLibraryImport": "PASS (no-argument createNivyr() import and managedSender() against installed package)",
+  "externalUp": "PASS (READY; NU6.3 active; indexer converged; 623.84820000 local regtest ZEC Ironwood spendable on final tarball)",
+  "externalLibraryApiLifecycle": "PASS (unmodified default package API drove broadcast through memo availability; real transaction, no custom backend/options; 15457ms)",
+  "externalTest": "PASS (final tarball: real lifecycle and forged-txid red/green; 2 reference API patterns; lifecycle 16.610s)",
+  "externalDown": "PASS (final tarball: only Nivyr Compose project stopped; volumes and sender wallet preserved)",
+  "externalProject": "temporary Node project at /tmp/nivyr-external-acceptance; no Nivyr repository checkout",
+  "walletImage": "ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9",
+  "rustCargoTrap": "PASS: PATH wrappers for cargo and rustc were active for final doctor/up/library lifecycle/test; invocation log remained empty",
+  "packageContents": "25 allowlisted files; no cache, wallet/runtime state, node_modules, maintainer Dockerfile, evidence archives, or secrets; final tarball audited"
+}

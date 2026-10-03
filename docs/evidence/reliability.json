@@ -1,0 +1,184 @@
+{
+  "schema": 1,
+  "scenario": "external npm tarball lifecycle plus forged-txid red/green against memo and destination reference apps",
+  "packageVersion": "0.1.0",
+  "imageDigest": "sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9",
+  "host": "Fedora Linux 44 x86_64",
+  "imageCache": "warm",
+  "runs": 20,
+  "passes": 20,
+  "failures": [],
+  "durationsMs": [
+    73990,
+    66240,
+    67374,
+    66944,
+    71751,
+    67280,
+    68585,
+    66878,
+    68276,
+    68228,
+    67781,
+    67012,
+    67169,
+    69463,
+    68678,
+    66410,
+    67355,
+    64990,
+    74594,
+    71570
+  ],
+  "durationsSeconds": [
+    73.99,
+    66.24,
+    67.374,
+    66.944,
+    71.751,
+    67.28,
+    68.585,
+    66.878,
+    68.276,
+    68.228,
+    67.781,
+    67.012,
+    67.169,
+    69.463,
+    68.678,
+    66.41,
+    67.355,
+    64.99,
+    74.594,
+    71.57
+  ],
+  "minSeconds": 64.99,
+  "medianSeconds": 67.578,
+  "p95Seconds": 73.99,
+  "maxSeconds": 74.594,
+  "evidenceNote": "All 20 attempts were retained; failures, if any, were not discarded or rerun. Per-run logs remain in the external project .nivyr/evidence directory on the recorded host.",
+  "status": "PASS",
+  "failureCount": 0,
+  "runResults": [
+    {
+      "run": 1,
+      "status": "PASS",
+      "durationMs": 73990,
+      "exitCode": 0
+    },
+    {
+      "run": 2,
+      "status": "PASS",
+      "durationMs": 66240,
+      "exitCode": 0
+    },
+    {
+      "run": 3,
+      "status": "PASS",
+      "durationMs": 67374,
+      "exitCode": 0
+    },
+    {
+      "run": 4,
+      "status": "PASS",
+      "durationMs": 66944,
+      "exitCode": 0
+    },
+    {
+      "run": 5,
+      "status": "PASS",
+      "durationMs": 71751,
+      "exitCode": 0
+    },
+    {
+      "run": 6,
+      "status": "PASS",
+      "durationMs": 67280,
+      "exitCode": 0
+    },
+    {
+      "run": 7,
+      "status": "PASS",
+      "durationMs": 68585,
+      "exitCode": 0
+    },
+    {
+      "run": 8,
+      "status": "PASS",
+      "durationMs": 66878,
+      "exitCode": 0
+    },
+    {
+      "run": 9,
+      "status": "PASS",
+      "durationMs": 68276,
+      "exitCode": 0
+    },
+    {
+      "run": 10,
+      "status": "PASS",
+      "durationMs": 68228,
+      "exitCode": 0
+    },
+    {
+      "run": 11,
+      "status": "PASS",
+      "durationMs": 67781,
+      "exitCode": 0
+    },
+    {
+      "run": 12,
+      "status": "PASS",
+      "durationMs": 67012,
+      "exitCode": 0
+    },
+    {
+      "run": 13,
+      "status": "PASS",
+      "durationMs": 67169,
+      "exitCode": 0
+    },
+    {
+      "run": 14,
+      "status": "PASS",
+      "durationMs": 69463,
+      "exitCode": 0
+    },
+    {
+      "run": 15,
+      "status": "PASS",
+      "durationMs": 68678,
+      "exitCode": 0
+    },
+    {
+      "run": 16,
+      "status": "PASS",
+      "durationMs": 66410,
+      "exitCode": 0
+    },
+    {
+      "run": 17,
+      "status": "PASS",
+      "durationMs": 67355,
+      "exitCode": 0
+    },
+    {
+      "run": 18,
+      "status": "PASS",
+      "durationMs": 64990,
+      "exitCode": 0
+    },
+    {
+      "run": 19,
+      "status": "PASS",
+      "durationMs": 74594,
+      "exitCode": 0
+    },
+    {
+      "run": 20,
+      "status": "PASS",
+      "durationMs": 71570,
+      "exitCode": 0
+    }
+  ]
+}
