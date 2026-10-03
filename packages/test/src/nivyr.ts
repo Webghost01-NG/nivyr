@@ -1,8 +1,9 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseDetectedPayment, parseTxid, parseWallet, parseWalletScanHeight, zecToZatoshi } from "./parse.js";
-import { LocalDevtoolBackend } from "./process.js";
+import { ContainerDevtoolBackend, LocalDevtoolBackend } from "./process.js";
 import { ZebraRpc } from "./rpc.js";
 import type {
   CreateWalletOptions,
@@ -39,24 +40,33 @@ export class Nivyr {
   private readonly scanHeights = new Map<string, number>();
   private readonly options: Required<Omit<NivyrOptions, "walletBackend">> & Pick<NivyrOptions, "walletBackend">;
   private readonly walletBackend: import("./process.js").WalletBackend;
+  private readonly runtimeRoot: string;
 
-  constructor(options: NivyrOptions) {
+  constructor(options: NivyrOptions = {}) {
     const packageRoot = resolve(fileURLToPath(new URL("../../../../", import.meta.url)));
-    const runtimeRoot = resolve(process.env.NIVYR_RUNTIME_ROOT ?? join(process.cwd(), ".nivyr"));
+    const projectRoot = resolve(process.env.NIVYR_PROJECT_ROOT ?? process.cwd());
+    const runtimeRoot = resolve(process.env.NIVYR_RUNTIME_ROOT ?? process.env.NIVYR_BOOTSTRAP_ROOT ?? join(projectRoot, ".nivyr"));
+    this.runtimeRoot = runtimeRoot;
+    const imageMode = process.env.NIVYR_DEVTOOL_MODE !== "source" && !options.devtoolPath && !process.env.NIVYR_DEVTOOL;
+    const composeProject = process.env.NIVYR_COMPOSE_PROJECT ?? `nivyr-${createHash("sha256").update(projectRoot).digest("hex").slice(0, 16)}`;
+    const devtoolImage = process.env.NIVYR_DEVTOOL_IMAGE ?? "ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9";
+    const activationHeightsPath = resolve(options.activationHeightsPath ?? join(packageRoot, "config", "regtest-activation-heights.toml"));
     this.options = {
-      lightwalletdAddress: "localhost:28137",
-      zebraRpcUrl: "http://127.0.0.1:29232",
-      zainoRpcUrl: "http://127.0.0.1:28237",
+      lightwalletdAddress: imageMode ? "127.0.0.1:8137" : "localhost:28137",
+      zebraRpcUrl: imageMode ? "http://127.0.0.1:49232" : "http://127.0.0.1:29232",
+      zainoRpcUrl: imageMode ? "http://127.0.0.1:49237" : "http://127.0.0.1:28237",
       zebraRpcUser: "zebra",
       zebraRpcPassword: "zebra",
       pollIntervalMs: 100,
       timeoutMs: 20_000,
       ...options,
-      devtoolPath: resolve(options.devtoolPath ?? process.env.NIVYR_DEVTOOL ?? join(runtimeRoot, "bin", "zcash-devtool")),
+      devtoolPath: imageMode ? devtoolImage : resolve(options.devtoolPath ?? process.env.NIVYR_DEVTOOL ?? join(runtimeRoot, "bin", "zcash-devtool")),
       walletRoot: resolve(options.walletRoot ?? join(runtimeRoot, "wallets")),
-      activationHeightsPath: resolve(options.activationHeightsPath ?? join(packageRoot, "config", "regtest-activation-heights.toml")),
+      activationHeightsPath,
     };
-    this.walletBackend = options.walletBackend ?? new LocalDevtoolBackend(this.options.devtoolPath);
+    this.walletBackend = options.walletBackend ?? (imageMode
+      ? new ContainerDevtoolBackend(devtoolImage, runtimeRoot, activationHeightsPath, `container:${composeProject}-zaino-1`)
+      : new LocalDevtoolBackend(this.options.devtoolPath));
     this.rpc = new ZebraRpc(
       this.options.zebraRpcUrl,
       this.options.zebraRpcUser,
@@ -99,6 +109,23 @@ export class Nivyr {
   async openWallet(name: string, directory: string, identityFile: string): Promise<WalletRef> {
     const stdout = await this.devtool(["wallet", "-w", resolve(directory), "list-addresses"]);
     return parseWallet(stdout, name, resolve(directory), resolve(identityFile));
+  }
+
+  async managedSender(): Promise<WalletRef> {
+    const statePath = join(this.runtimeRoot, "state.json");
+    let state: { ready?: boolean; senderWallet?: string; senderIdentity?: string };
+    try {
+      state = JSON.parse(await readFile(statePath, "utf8")) as typeof state;
+    } catch {
+      throw new Error("Nivyr runtime state is unavailable; run npx nivyr up before requesting its funded sender wallet.");
+    }
+    const expectedWallet = join(this.options.walletRoot, "sender");
+    const expectedIdentity = join(this.options.walletRoot, "sender.age");
+    if (state.ready !== true) throw new Error("Nivyr runtime is not READY; run npx nivyr up before requesting its funded sender wallet.");
+    if (resolve(state.senderWallet ?? "") !== expectedWallet || resolve(state.senderIdentity ?? "") !== expectedIdentity) {
+      throw new Error("Nivyr runtime sender paths do not match the configured wallet root; refusing to open unexpected wallet state.");
+    }
+    return this.openWallet("NivyrSender", expectedWallet, expectedIdentity);
   }
 
   async pay(options: PayOptions): Promise<string> {
@@ -219,6 +246,6 @@ export class Nivyr {
   }
 }
 
-export function createNivyr(options: NivyrOptions): Nivyr {
+export function createNivyr(options: NivyrOptions = {}): Nivyr {
   return new Nivyr(options);
 }
