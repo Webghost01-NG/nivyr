@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="570" viewBox="0 0 1120 570" role="img" aria-labelledby="title desc">
+  <title id="title">Nivyr Zcash test architecture</title>
+  <desc id="desc">A TypeScript application and test call Nivyr. Nivyr coordinates Zebra, Zaino and a digest-pinned wallet container on a disposable Zcash regtest network. Observations flow back to the application test.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8Z" fill="#4b8266"/></marker>
+    <marker id="arrow-muted" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8Z" fill="#82958a"/></marker>
+  </defs>
+  <rect width="1120" height="570" rx="18" fill="#f6f8f6"/>
+  <g font-family="Inter,Arial,sans-serif">
+    <text x="54" y="50" fill="#247552" font-size="12" font-weight="700" letter-spacing="1.8">TEST APPLICATION</text>
+    <rect x="54" y="75" width="420" height="110" rx="12" fill="#fff" stroke="#d5e1d8"/>
+    <text x="78" y="116" fill="#14251d" font-size="18" font-weight="700">TypeScript / Vitest</text>
+    <text x="78" y="145" fill="#53635a" font-size="13">real payments · lifecycle assertions · invoice policy</text>
+    <path d="M264 185v37" stroke="#4b8266" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="281" y="210" fill="#53635a" font-size="11">CLI + API</text>
+
+    <rect x="54" y="232" width="420" height="112" rx="12" fill="#10251d"/>
+    <text x="78" y="274" fill="#75d4a2" font-size="12" font-weight="700" letter-spacing="1.4">NIVYR PACKAGE</text>
+    <text x="78" y="306" fill="#f6f8f6" font-size="19" font-weight="700">Orchestrate, observe, assert</text>
+    <text x="78" y="328" fill="#b9c9bf" font-size="12">project-scoped runtime · wallet adapter · payment scenarios</text>
+
+    <path d="M474 288h72" stroke="#4b8266" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="486" y="273" fill="#53635a" font-size="11">controls</text>
+    <text x="485" y="311" fill="#53635a" font-size="11">observations</text>
+    <path d="M546 316h-72" stroke="#82958a" stroke-width="1.5" marker-end="url(#arrow-muted)"/>
+
+    <rect x="566" y="67" width="502" height="420" rx="16" fill="#edf2ee" stroke="#cfdbd2" stroke-dasharray="5 5"/>
+    <text x="594" y="104" fill="#247552" font-size="12" font-weight="700" letter-spacing="1.8">LOCAL ZCASH REGTEST</text>
+    <rect x="594" y="130" width="210" height="115" rx="10" fill="#fff" stroke="#d5e1d8"/>
+    <text x="616" y="170" fill="#14251d" font-size="17" font-weight="700">Zebra</text>
+    <text x="616" y="196" fill="#53635a" font-size="12">consensus + chain RPC</text>
+    <text x="616" y="222" fill="#718078" font-size="11">pinned 6.2.3</text>
+    <rect x="830" y="130" width="210" height="115" rx="10" fill="#fff" stroke="#d5e1d8"/>
+    <text x="852" y="170" fill="#14251d" font-size="17" font-weight="700">Zaino</text>
+    <text x="852" y="196" fill="#53635a" font-size="12">indexer + wallet sync</text>
+    <text x="852" y="222" fill="#718078" font-size="11">pinned 0.10.1-no-tls</text>
+    <path d="M804 188h26" stroke="#4b8266" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="594" y="290" width="446" height="140" rx="10" fill="#fff" stroke="#d5e1d8"/>
+    <text x="618" y="330" fill="#14251d" font-size="17" font-weight="700">Pinned zcash-devtool container</text>
+    <text x="618" y="357" fill="#53635a" font-size="12">wallet creation · send · sync · transaction history · memo enhancement</text>
+    <text x="618" y="397" fill="#247552" font-family="ui-monospace,monospace" font-size="11">linux/amd64 · digest-pinned</text>
+    <path d="M704 245v45" stroke="#4b8266" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M935 245v45" stroke="#4b8266" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <text x="54" y="399" fill="#718078" font-size="11">Nivyr does not replace consensus, wallet cryptography, indexing, or the test runner.</text>
+    <text x="54" y="431" fill="#718078" font-size="11">Verified package runtime: Fedora Linux 44 x86_64. Other hosts remain unverified.</text>
+  </g>
+</svg>

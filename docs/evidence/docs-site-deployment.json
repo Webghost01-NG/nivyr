@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-10-03",
+  "provider": "Vercel",
+  "project": "nivyr-docs",
+  "deploymentId": "dpl_BcoGn11fLYeVox1mpEQvFLRot5AB",
+  "deploymentState": "READY",
+  "productionUrl": "https://nivyr-docs.vercel.app",
+  "framework": "VitePress 2.0.0-alpha.20",
+  "build": "PASS",
+  "httpChecks": {
+    "/": 200,
+    "/guide/getting-started": 200,
+    "/concepts/architecture": 200,
+    "/api/": 200,
+    "/sitemap.xml": 200,
+    "/favicon.svg": 200,
+    "/og.svg": 200,
+    "/reference/forbidden": 404
+  },
+  "viewportReview": ["desktop 1440x1100", "mobile 390x844"],
+  "npmPublication": "PENDING_NPM_WRITE_AUTHORIZATION",
+  "notes": "Public docs are live. The getting-started page and homepage identify npm publication as pending; no public registry install is claimed."
+}
