@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "observedAt": "2026-10-03T12:31:22.996Z",
+  "packageVersion": "0.1.0",
+  "txid": "2ba61154b335212da78de0b6aa8739e20d56f390bea3e15021a9a2b1edf4bc86",
+  "chainHeightBefore": 317,
+  "minedHeight": 318,
+  "indexedHeight": 318,
+  "transitions": {
+    "broadcast": true,
+    "mined": true,
+    "indexed": true,
+    "merchantUnscanned": true,
+    "synced": true,
+    "detected": true,
+    "enhanced": true,
+    "memoAvailable": true
+  },
+  "durationMs": 16610
+}

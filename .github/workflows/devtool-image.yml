@@ -1,0 +1,78 @@
+name: Publish pinned zcash-devtool image
+
+on:
+  push:
+    branches: [main, spike/zcash-lifecycle, feat/productize-reproducibility]
+    tags: ["v*", "devtool-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  attestations: write
+
+jobs:
+  image:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/webghost01-ng/nivyr-zcash-devtool
+          tags: |
+            type=raw,value=0.1.0
+            type=sha,format=long
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: docker/zcash-devtool
+          file: docker/zcash-devtool/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          cache-from: type=gha,scope=zcash-devtool
+          cache-to: type=gha,mode=max,scope=zcash-devtool
+          provenance: mode=max
+      - name: Verify pinned wallet image commands
+        env:
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          image="ghcr.io/webghost01-ng/nivyr-zcash-devtool@${IMAGE_DIGEST}"
+          docker pull --platform linux/amd64 "$image"
+          docker run --rm --platform linux/amd64 "$image" --help
+          docker run --rm --platform linux/amd64 "$image" wallet --help
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ghcr.io/webghost01-ng/nivyr-zcash-devtool
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+      - name: Record artifact digest
+        env:
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          echo "Published ghcr.io/webghost01-ng/nivyr-zcash-devtool@${IMAGE_DIGEST} (linux/amd64)"
+          {
+            echo '## Nivyr devtool image'
+            echo '- Image: `ghcr.io/webghost01-ng/nivyr-zcash-devtool`'
+            echo '- Tag: `0.1.0` and commit SHA'
+            echo "- Digest: `${IMAGE_DIGEST}`"
+            echo '- Architecture: `linux/amd64`'
+            echo '- Source: `zcash-devtool@5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8`'
+          } >> "$GITHUB_STEP_SUMMARY"
+          printf '{"image":"ghcr.io/webghost01-ng/nivyr-zcash-devtool","tag":"0.1.0","digest":"%s","architecture":"linux/amd64","sourceCommit":"5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8"}\n' "$IMAGE_DIGEST" > image-digest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nivyr-zcash-devtool-digest
+          path: image-digest.json
+          if-no-files-found: error

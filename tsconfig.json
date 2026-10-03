@@ -9,5 +9,5 @@
     "rootDir": ".",
     "types": ["node", "vitest/globals"]
   },
-  "include": ["packages/**/*.ts", "tests/**/*.ts", "examples/**/*.ts", "scripts/**/*.ts"]
+  "include": ["packages/**/*.ts", "tests/**/*.ts", "examples/**/*.ts", "scripts/**/*.ts", "src/**/*.ts"]
 }

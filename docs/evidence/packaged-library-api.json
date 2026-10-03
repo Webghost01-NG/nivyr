@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "observedAt": "2026-10-03T12:26:57.062Z",
+  "packageVersion": "0.1.0",
+  "source": "external tarball createNivyr() no options",
+  "chainHeightBefore": 311,
+  "minedHeight": 312,
+  "indexedHeight": 312,
+  "txid": "eed90b85fc119f9724e72e1090ce1168a2ba436a39463e97946c6de2fe3737c1",
+  "transitions": {
+    "broadcast": true,
+    "mined": true,
+    "indexed": true,
+    "merchantUnscanned": true,
+    "synced": true,
+    "detected": true,
+    "enhanced": true,
+    "memoAvailable": true
+  },
+  "durationMs": 15457
+}
