@@ -1,7 +1,11 @@
 {
-  "status": "PENDING",
-  "app1": "reference merchant HTTP API (existing real lifecycle test)",
-  "app2": null,
-  "sameScenarioMachinery": false,
-  "note": "The shared app adapter is only a type surface today. No second application has run through the same real-payment scenario."
+  "schema": 1,
+  "observedAt": "2026-10-03T11:57:24.767Z",
+  "packageVersion": "0.1.0",
+  "sameScenarioMachinery": true,
+  "applications": [
+    "memo-based invoice reconciliation",
+    "per-invoice destination reconciliation"
+  ],
+  "bothSettledExpectedPayments": true
 }

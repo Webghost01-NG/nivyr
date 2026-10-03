@@ -1,16 +1,16 @@
 # Colosseum Readiness Criteria Map
 
-Accessed: 2026-10-03. The current official program page and track criteria have not been captured in this repository during this sprint. Numeric weights are intentionally omitted. Verify exact wording against the active Colosseum Crypto World's Fair source before submission.
+Accessed: 2026-10-03. The active [Crypto World's Fair program page](https://colosseum.com/hackathon?year=fall2026) says the event runs September 14–October 12, 2026 and describes evaluation across Founder + Market Fit, Insight, Product + Execution, Potential Market Size, Founder Communication, Viability, and Traction. The project also tracks GTM because the event asks teams to refine go-to-market strategy; no numeric weights are published on the page. The Colosseum Copilot resource hub was unavailable in this session, so this map relies on the public program page only.
 
 | Area | Current evidence | Missing evidence | Owner | Artifact |
 |---|---|---|---|---|
-| Founder-market fit | Built lifecycle orchestrator; worked through NU6.3/Ironwood compatibility; experienced long local build, Ubuntu Cargo timeout, macOS Node gate, and secondary Fedora missing Docker CLI; converted these into product requirements. | Developer interviews and founder background statement grounded in public facts. | Founder | `docs/spike/friction-log.md`, `docs/support-matrix.md`, `docs/validation.md` |
-| Insight | A mined payment is not necessarily indexed, scanned, enhanced, or settled. | User interviews confirming the distinction matters operationally. | Founder | `docs/architecture.md`, lifecycle evidence |
-| Product / execution | Real Zcash lifecycle currently verified on primary Fedora host. | Installed tarball end-to-end flow, published immutable devtool image, forged-txid app regression and adapter reuse. | Engineering | `docs/evidence/`, package acceptance evidence |
+| Founder + Market Fit | Built lifecycle orchestrator; worked through NU6.3/Ironwood compatibility; encountered a 24-minute local build and separate Ubuntu Cargo, macOS Node, and Fedora Docker failures; converted those into product requirements. | Founder background and external developer interviews; do not invent motivation or market experience beyond recorded facts. | Founder | `docs/spike/friction-log.md`, `docs/support-matrix.md`, `docs/validation.md` |
+| Insight | A mined payment is not necessarily indexed, scanned, enhanced, or settled. | Developer interviews confirming operational frequency and cost. | Founder | `docs/architecture.md`, `docs/evidence/packaged-lifecycle-20261003.json` |
+| Product + Execution | External tarball reaches READY on Fedora x86_64 with a digest-pinned wallet image and no Cargo/Rust; real lifecycle and forged-txid red/green pass; shared scenario covers memo and destination reference patterns. | Finish 20-run loop, independent-host retests, cold-image timing, third-party application integration. | Engineering | `docs/evidence/package-acceptance.json`, `docs/evidence/packaged-lifecycle-20261003.json`, `docs/evidence/packaged-forged-txid.json`, `docs/evidence/adapter-reuse.json` |
 | Market size | Initial audience is Zcash payment developers and adjacent wallet/payment teams. | Sourced market sizing; do not claim a broad crypto market. | Founder | `docs/validation.md` |
-| Communication | Product definition and outreach copy prepared. | Demo video and concise external quickstart. | Founder | `README.md`, `docs/outreach.md` |
-| Viability | npm distribution and CI companion are plausible routes. | Working distribution, maintenance costs, pricing/grants path, tested demand. | Founder | package artifact, GTM section |
+| Founder Communication | Product definition, tarball quickstart, and outreach copy prepared. | Demo video and concise spoken explanation. | Founder | `README.md`, `docs/third-party-test.md`, `docs/outreach.md` |
+| Viability | npm distribution and CI companion are plausible routes; the external tarball path works. | Public distribution, maintenance costs, pricing/grants path, and tested demand. | Founder | package artifact, GTM section |
 | Traction / demand validation | None recorded. | Conversations, trial installs, usage, or explicit interest. | Founder | `docs/validation.md` |
 | GTM / distribution | npm discovery, GitHub, Zcash Forum, ecosystem communities, direct integration outreach, grants/programs, easy examples/docs identified. | Actual launch/distribution and conversion evidence. | Founder | README GTM paragraph |
 
-Source to verify before submission: https://colosseum.com/crypto-worlds-fair
+Source: https://colosseum.com/hackathon?year=fall2026. The public page gives judging areas but no numeric weights. The Zcash track criteria were not separately available in this session.

@@ -1,12 +1,14 @@
 {
-  "status": "PENDING",
-  "origin": "empty external user project",
+  "status": "NOT_COLD_IMAGE_CACHED",
+  "origin": "fresh external project /tmp/nivyr-external-acceptance with package installed from tarball",
+  "packageVersion": "0.1.0",
+  "imageDigest": "sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9",
   "packageInstallSeconds": null,
   "imagePullSeconds": null,
+  "imageCacheState": "warm; the digest-pinned image had been pulled before the timed external acceptance",
   "runtimeStartupSeconds": null,
-  "integrationSeconds": null,
+  "integrationSeconds": 52.12,
   "totalSeconds": null,
-  "host": null,
-  "packageVersion": "0.1.0",
-  "imageDigest": null
+  "host": "Fedora Linux 44 x86_64",
+  "note": "The external-package lifecycle and bootstrap passed, but no true cold image pull was timed. Null timings are intentionally left unclaimed."
 }

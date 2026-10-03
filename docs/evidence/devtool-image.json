@@ -9,5 +9,5 @@
   "buildRepositoryCommit": "7a3e5a6c8eb542c55eaafda132ebebcb5c0cf0e7",
   "workflowRun": "https://github.com/Webghost01-NG/nivyr/actions/runs/37119436768",
   "buildProvenance": "PASS: gh attestation verify validated an SLSA provenance attestation for the exact image digest and repository",
-  "localPullAndExecution": "IN_PROGRESS"
+  "localPullAndExecution": "PASS: digest-pinned image executed wallet --help and full external package wallet lifecycle; immutable digest 42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9"
 }

@@ -1,15 +1,18 @@
 {
   "date": "2026-10-03",
   "package": "@webghost01/nivyr@0.1.0",
-  "tarball": "webghost01-nivyr-0.1.0.tgz",
-  "status": "PARTIAL",
+  "tarball": "@webghost01/nivyr@0.1.0 tarball",
+  "tarballSha512": "688a4f9d4775fcfabc7cea77a33b5deb391a5ff4eb3d6e1d2330120a19857bb650cd5fa83465d10ab68cdf7543e15b93e0288d5665a6312d7a9a1f646cef62ce",
+  "status": "PASS",
   "packDryRun": "PASS",
   "externalInstall": "PASS",
-  "externalDoctor": "PASS_WITH_ADVISORIES",
+  "externalDoctor": "PASS_WITH_ADVISORIES (Fedora 44 x86_64; Docker and GHCR reachable; 3.8 GiB available disk advisory)",
   "externalLibraryImport": "PASS",
-  "externalUp": "NOT RUN",
-  "externalTest": "NOT RUN",
-  "externalDown": "NOT RUN",
-  "reason": "The pinned devtool image has no published immutable GHCR digest and packaged wallet funding/readiness orchestration has not been verified.",
-  "packageContents": "24 allowlisted files; no cache, wallet/runtime state, node_modules, or evidence archives"
+  "externalUp": "PASS (READY; NU6.3 active; indexer converged; 624.99480000 local regtest ZEC Ironwood spendable)",
+  "externalTest": "PASS (broadcast/mined/indexed/unscanned/synced/detected/enhanced/memo and forged-txid red/green)",
+  "externalDown": "PASS (Nivyr project containers stopped; Nivyr volumes and wallet state preserved)",
+  "externalProject": "empty /tmp/nivyr-external-acceptance project; no repository checkout",
+  "walletImage": "ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9",
+  "rustCargoTrap": "PASS: PATH wrappers for cargo and rustc were active; invocation log remained empty",
+  "packageContents": "25 allowlisted files; no cache, wallet/runtime state, node_modules, maintainer Dockerfile, evidence archives, or secrets"
 }

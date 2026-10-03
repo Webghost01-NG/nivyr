@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "observedAt": "2026-10-03T11:57:24.767Z",
+  "packageVersion": "0.1.0",
+  "applications": [
+    {
+      "applicationPattern": "memo-based invoice reconciliation",
+      "invoice": "ORDER-42",
+      "invalidTxid": "49ea48fe94ec32bc67198b7b30f675e45d33ef2053f76e73fd6832e9c5854dd5",
+      "invalidMinedHeight": 208,
+      "invalidCondition": "real mined transaction paid an unrelated recipient with a wrong memo",
+      "buggyMerchantStatus": "paid",
+      "correctedStatusAfterInvalid": "unpaid",
+      "validTxid": "5e0fa81b6ea49ef1329197162fc36fca4fff2d2d2e5dd7a33d573ebc50c05498",
+      "validMinedHeight": 209,
+      "validAmountZatoshi": "1000000",
+      "validMemoMatched": true,
+      "correctedStatusAfterValid": "paid"
+    },
+    {
+      "applicationPattern": "per-invoice destination reconciliation",
+      "invoice": "ORDER-42",
+      "invalidTxid": "d629a47fff4f2af4e672ec51adcebabf6a4d37ceadf44e953333c6f16e0934af",
+      "invalidMinedHeight": 210,
+      "invalidCondition": "real mined transaction paid an unrelated recipient with a wrong memo",
+      "buggyMerchantStatus": "paid",
+      "correctedStatusAfterInvalid": "unpaid",
+      "validTxid": "c6f23a45f84bb5ce196018abc2c450406fdc3f1f8a3f27ec63c9ce63ebf28b98",
+      "validMinedHeight": 211,
+      "validAmountZatoshi": "1000000",
+      "validMemoMatched": true,
+      "correctedStatusAfterValid": "paid"
+    }
+  ]
+}

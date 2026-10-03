@@ -1,6 +1,6 @@
 {
   "host": "fedora-primary",
-  "status": "PENDING",
+  "status": "VERIFIED",
   "recordedAt": "2026-10-03",
   "os": "Fedora Linux 44",
   "architecture": "x86_64",
@@ -8,9 +8,11 @@
   "docker": "29.8.1",
   "compose": "5.5.1",
   "packageVersion": "0.1.0",
-  "doctor": "NOT RUN",
+  "doctor": "PASS_WITH_LOW_DISK_ADVISORY (3.8 GiB available; GHCR reachable)",
   "coldStartSeconds": null,
-  "bootstrap": "NOT RUN WITH PACKAGED PATH",
-  "integration": "NOT RUN WITH PACKAGED PATH",
-  "note": "Previous source-checkout lifecycle evidence remains in docs/evidence/bootstrap and docs/evidence/runs; it is not evidence for npm installation."
+  "bootstrap": "PASS from external npm tarball; runtime READY at height 203; NU6.3 active; Ironwood spendable 624.99480000 local regtest ZEC",
+  "integration": "PASS: real lifecycle and forged-txid red/green via npx nivyr test",
+  "shutdown": "PASS: project containers stopped; volumes and wallet state preserved",
+  "rustCargo": "NOT INVOKED; cargo/rustc trap wrappers logged no calls",
+  "note": "External project had no repository checkout. Image was already cached, so this is not a cold-image timing result."
 }

@@ -1,20 +1,20 @@
 # Current Limitations
 
 - `npm run nivyr:up` bootstraps the pinned local Z3 regtest and funds the sender without a faucet; `npm run test:integration` expects that managed runtime to have reached READY. The integration runner does not start it implicitly.
-- The primary Fedora x86_64 host is verified. An Ubuntu independent retry is **BLOCKED/PENDING** after a reported Cargo crates.io timeout, and a macOS retry is **BLOCKED/PENDING** after the former Node gate. The changes described here have not been rerun on either machine. See [support matrix](support-matrix.md).
+- Fedora Linux 44 x86_64 passed the external tarball sequence `doctor → up → test → down`. Ubuntu and macOS still have only their earlier source-mode/preflight failures; no package-mode rerun has been made there. See [support matrix](support-matrix.md).
 - Z3's August 2026 pin defaults to Zaino 0.6, which fails wallet Ironwood subtree requests. The experiment used Zaino 0.10.1 with a digest override. A clean install must apply that override.
 - Zebra exposes wallet transaction details in a JSON shape used by the TypeScript parser. Other Zebra versions may differ.
 - Memo plaintext was available only after `zcash-devtool wallet enhance`. Nivyr coordinates this; wallet code decrypts the memo.
 - Wallet lifecycle code parses human-oriented `zcash-devtool` text for address, send txid, sync progress, payment amount/pool, and decrypted memo. Parser errors now avoid echoing command output, but correctness still depends on pinned CLI text fields. `list-tx --json` only supplies txid and mined height, not amount/pool/memo. A future machine-readable upstream response would reduce this fragility.
-- A failed first bootstrap after crates.io download has not yet been retried on Ubuntu. The new timeout/retry policy and preservation behavior are locally reviewed but require independent confirmation.
+- Ubuntu's historical Cargo crates.io timeout is separate from the now-verified image-mode package path; an independent Ubuntu package retest remains pending.
 - Node 22.14.0 was not run through the full project on the macOS tester's machine. The previous 22.23.1 minimum had no code/dependency basis found; final Node support matches Vitest's declared engine range.
 - Scan-height knowledge is scoped to a Nivyr instance and a wallet it explicitly syncs. Reopening an already-used wallet in a new Nivyr instance does not reconstruct historical scan progress.
 - Tests use regtest-only default RPC credentials (`zebra`/`zebra`). Never point this package at a public or production wallet/node.
 - The reference app is intentionally tiny and in-memory. It demonstrates external application assertions, not production merchant architecture.
-- The package CLI skeleton and external npm tarball install work, but `nivyr up` is not acceptance-complete: no immutable GHCR devtool image has been published and the packaged wallet funding/readiness flow has not been proven. The package reports this as a blocker rather than claiming startup success.
-- `PaymentAppAdapter` currently supplies reusable interface types only. A second distinct application and shared scenario proof are pending.
-- The forged customer-supplied-txid exploit path has not yet been implemented or reproduced. The current merchant only receives lifecycle observations from the test.
-- There is no public generic application adapter or multi-backend interface.
+- The external tarball reached READY, ran the lifecycle and forged-txid regression, and shut down only its own Compose project. That end-to-end evidence currently covers Fedora x86_64 and a warm image cache; cold-pull and independent-host behavior remain unverified.
+- The packaged test exercises memo-based and per-invoice-destination reference application patterns through the HTTP-facing `PaymentAppAdapter`. These are reference fixtures, not independent third-party projects.
+- The forged-txid regression proves behavior of the included buggy/corrected fixtures only. It does not establish that an external merchant has the same flaw or accepts customer-supplied txids.
+- The CLI runs Nivyr's packaged lifecycle/security verification; Vitest remains the consumer's test runner. A stable extension contract for importing arbitrary third-party scenarios is not yet available.
 
 ## Runtime configuration and failure diagnostics
 

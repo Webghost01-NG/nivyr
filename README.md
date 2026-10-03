@@ -27,24 +27,23 @@ Vitest remains the test runner. `nivyr test` is intended to verify Nivyr's packa
 
 ## Forged-Txid Demo
 
-A valid mined txid alone does not prove that a merchant received the expected payment. The current reference merchant checks wallet observation, exact amount, and memo through its HTTP surface. The dedicated customer-supplied forged-txid security regression is still pending; see [evidence](docs/evidence/forge-txid.json). Do not claim the attack is reproduced until that artifact is updated by a real run.
+A valid mined txid alone does not prove that a merchant received the expected payment. In the packaged regtest, a reference merchant that trusts a customer-supplied mined txid incorrectly settled ORDER-42 for an unrelated destination and wrong memo. The corrected fixture remained unpaid until its wallet observed the expected destination, amount, and memo. See the [sanitized evidence](docs/evidence/packaged-forged-txid.json); this demonstrates the fixture, not any third-party merchant.
 
 ## Lifecycle Model
 
-Nivyr's verified source-checkout lifecycle uses real Ironwood-era transactions:
+Nivyr's packaged external-project lifecycle uses real Ironwood-era transactions:
 
 ```text
 broadcast → mined → indexed → merchant wallet unscanned → sync → detected → enhance → memo
 ```
 
-The source-checkout evidence is not yet evidence that the npm package runtime works. See [architecture](docs/architecture.md), [limitations](docs/limitations.md), and [host evidence](docs/support-matrix.md).
+The packed npm artifact ran this lifecycle from a project with no Nivyr repository checkout. See the [external package acceptance record](docs/evidence/package-acceptance.json), [lifecycle evidence](docs/evidence/packaged-lifecycle-20261003.json), [architecture](docs/architecture.md), and [host evidence](docs/support-matrix.md).
 
 ## Install
 
-The package is prepared as `@webghost01/nivyr@0.1.0`, but has **not been published**. Until package acceptance gates pass, install from a local tarball built by a maintainer:
+The package is prepared as `@webghost01/nivyr@0.1.0` and has **not been published**. A maintainer can provide the packed tarball; install it from an ordinary project directory:
 
 ```sh
-npm pack /path/to/nivyr
 npm install -D /path/to/webghost01-nivyr-0.1.0.tgz
 ```
 
@@ -56,7 +55,7 @@ npm install -D @webghost01/nivyr
 
 ## Quickstart
 
-The package CLI and doctor are under active productization. Do not treat the following as a verified end-to-end quickstart yet:
+The full CLI sequence has passed on the Fedora Linux 44 x86_64 productization host using an external tarball installation. The registry package is still unpublished, so use the tarball instructions above:
 
 ```sh
 npx nivyr doctor
@@ -65,7 +64,7 @@ npx nivyr test
 npx nivyr down
 ```
 
-Normal mode is designed to use pinned Docker images without local Rust/Cargo compilation. The pinned devtool image is not yet published; the image-mode bootstrap is therefore not ready for users.
+Normal mode defaults to the published, digest-pinned linux/amd64 wallet image. The tested `up` run used Cargo and Rust trap wrappers whose invocation log stayed empty. An available Docker/Compose host and registry access are required; ARM64 has not been tested.
 
 ## TypeScript API
 
@@ -73,8 +72,12 @@ Normal mode is designed to use pinned Docker images without local Rust/Cargo com
 import { createNivyr } from "@webghost01/nivyr";
 
 const zcash = createNivyr();
+const sender = await zcash.managedSender();
 const recipient = await zcash.wallet({ name: "merchant-order-42" });
-// Use a sender wallet from the managed Nivyr runtime in a complete setup.
+const txid = await zcash.pay({ from: sender, to: recipient, amount: "0.01", memo: "ORDER-42" });
+await zcash.mine(1);
+await zcash.sync(recipient);
+await zcash.enhance(recipient);
 ```
 
 Explicit paths remain supported for maintainer and custom-runtime use:
@@ -91,17 +94,17 @@ The package exports `createNivyr`, `Nivyr`, lifecycle types, payment adapter typ
 
 ## Application Adapter
 
-`PaymentAppAdapter` is a small HTTP/API-facing contract with `createInvoice` and `getInvoice`. It does not authorize database access. The existing merchant demonstrates memo-based invoice reconciliation. Adapter reuse across two distinct applications is not yet proven; see [adapter evidence](docs/evidence/adapter-reuse.json).
+`PaymentAppAdapter` is a small HTTP/API-facing contract with `createInvoice` and `getInvoice`. It does not authorize database access. The packaged scenario runs against memo-based and per-invoice-destination reference API patterns; integration with two independent application codebases remains unproven. See [adapter evidence](docs/evidence/adapter-reuse.json).
 
 ## Architecture
 
-Zebra provides chain state; Zaino provides indexing and wallet sync transport; zcash-devtool provides wallet operations and memo decryption. Nivyr coordinates these existing components and asserts application-visible behavior. The source-checkout bootstrap still uses the prior repository scripts; package runtime orchestration is incomplete.
+Zebra provides chain state; Zaino provides indexing and wallet sync transport; the pinned zcash-devtool image provides wallet operations and memo decryption. The package owns generated Compose/runtime state under the consumer project's `.nivyr/`, marked as Nivyr-owned. Wallet containers share only the Zaino network namespace to use its plaintext local h2c endpoint; wallet files remain outside `node_modules`.
 
 ## Reproducibility
 
 Verified source pins: Z3 `e84ce9fd8e864ff0b2a8a62f6ce14392145db0fb`, Zebra `6.2.3`, Zaino `0.10.1-no-tls`, zcash-devtool `5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8`; NU6.3 activates at regtest height 2. Zebra and Zaino image digests are recorded in [stack proof](docs/evidence/stack-proof.json).
 
-Package runtimes will use `.nivyr/` in the consumer project with an ownership marker, private wallet storage, and project-scoped Docker resources. Do not delete unrelated Docker containers or volumes. Current package path needs further bootstrap/restart verification.
+Package runtimes use `.nivyr/` in the consumer project with an ownership marker, private wallet storage, and project-scoped Docker resources. `down` stops only that Nivyr Compose project and preserves its volumes and sender wallet.
 
 ## Evidence
 
@@ -109,17 +112,17 @@ Package runtimes will use `.nivyr/` in the consumer project with an ownership ma
 - [Ironwood pool proof](docs/evidence/pool-proof.txt)
 - [Sanitized bootstrap evidence](docs/evidence/bootstrap/)
 - [Host support matrix](docs/support-matrix.md)
+- [External tester instructions](docs/third-party-test.md)
 - [Package cold start](docs/evidence/cold-start.json) and [20-run reliability](docs/evidence/reliability.json): pending
 
 ## Supported Platforms
 
-Linux x86_64 is the only host with verified source-checkout lifecycle evidence. macOS Node gating, Ubuntu source-build network failure, and secondary Fedora missing Docker CLI are separate historical reports. The package uses a linux/amd64 devtool image; ARM64 is not supported until an ARM64 image is built and tested.
+Fedora Linux 44 x86_64 is verified for external tarball install, doctor, up, test, and down. macOS Node gating, Ubuntu source-build network failure, and secondary Fedora missing Docker CLI remain distinct historical reports; none has a new package-mode retest. The wallet image is linux/amd64; ARM64 is unverified.
 
 ## Known Limitations
 
-- The npm tarball still requires external acceptance, and the package CLI runtime is incomplete.
-- GHCR image workflow exists but no image tag/digest has been published or verified.
-- Forged-txid regression, two-app adapter reuse, view-only merchant, and reorg are pending/not tested.
+- The public npm package is not published; obtain a maintainer-built tarball.
+- Two-application adapter reuse, packaged 20-run reliability, view-only merchant, and reorg remain pending/not tested.
 - No external developer validation is recorded.
 - Wallet CLI parsing still depends on pinned human-readable output in some paths.
 

@@ -1,6 +1,8 @@
 {
-  "status": "PENDING",
-  "bugReproduced": false,
-  "correctedBehavior": "NOT TESTED",
-  "note": "Current merchant API accepts lifecycle observations and exact amount/memo; it has no customer-supplied txid settlement endpoint yet. Add the exploit fixture and regression before making a security-demo claim."
+  "status": "PASS",
+  "bugReproduced": true,
+  "correctedBehavior": "PASS: unrelated recipient, wrong memo and matching amount stayed unpaid; expected destination, amount, and memo were wallet-observed and settled",
+  "evidenceFile": "docs/evidence/packaged-forged-txid.json",
+  "network": "isolated regtest; package-installed Nivyr; no real funds",
+  "claimLimit": "Demonstrates this fixture's mined-only txid bug; does not establish behavior of any third-party merchant."
 }
