@@ -6,6 +6,9 @@
   "deploymentState": "READY",
   "productionUrl": "https://nivyr-docs.vercel.app",
   "framework": "VitePress 2.0.0-alpha.20",
+  "vercelRootDirectory": "website",
+  "vercelBuildCommand": "npm run build",
+  "vercelOutputDirectory": ".vitepress/dist",
   "build": "PASS",
   "httpChecks": {
     "/": 200,
