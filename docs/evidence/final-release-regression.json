@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "date": "2026-10-03",
+  "package": "@webghost01/nivyr@0.1.0",
+  "artifact": "webghost01-nivyr-0.1.0.tgz",
+  "artifactSha512": "31a98626d791853b674f07afd7541d8841665d793ab4e662abb42033ab6b730648a5010168adb808f3e103674856b5a437d63f15a28adaf0b250502b4d210e7c",
+  "testProject": "fresh external Node project; no Nivyr checkout",
+  "host": "Fedora Linux 44 x86_64",
+  "image": "ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9",
+  "attempts": [
+    {
+      "status": "FAILED",
+      "stage": "first fresh packaged bootstrap",
+      "cause": "Wallet gRPC view had not caught up after shielding; a subsequent send saw insufficient spendable balance.",
+      "disposition": "Preserved as a failed attempt; added a confirmation and wallet-sync readiness barrier."
+    },
+    {
+      "status": "FAILED",
+      "stage": "repeat package test after readiness barrier",
+      "cause": "Sequential outgoing sends exhausted change not yet recognized by the sender wallet.",
+      "disposition": "Preserved as a failed attempt; sync sender after each mined spend."
+    },
+    {
+      "status": "PASS",
+      "stage": "final fresh external package acceptance",
+      "checks": {
+        "install": "PASS",
+        "doctor": "PASS_WITH_LOW_DISK_ADVISORY",
+        "libraryImport": "PASS",
+        "up": "PASS; READY after NU6.3 activation, indexer convergence and positive Ironwood spendable balance",
+        "test": "PASS; real lifecycle and forged-txid red/green reference scenarios",
+        "down": "PASS; stopped only the Nivyr-owned Compose project and preserved runtime wallet/volumes",
+        "rustCargoInvocations": 0,
+        "packageAudit": "PASS; 25 allowlisted files and no wallet state, cache, identity, secret, or node_modules"
+      }
+    }
+  ],
+  "claimLimit": "Maintainer-host Fedora Linux 44 x86_64 acceptance from an npm tarball; this is not public-registry installation or independent-host validation."
+}

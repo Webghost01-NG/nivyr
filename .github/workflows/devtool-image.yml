@@ -2,8 +2,9 @@ name: Publish pinned zcash-devtool image
 
 on:
   push:
-    branches: [main, spike/zcash-lifecycle, feat/productize-reproducibility]
-    tags: ["v*", "devtool-v*"]
+    # Build only for explicit wallet-tool releases. Ordinary product/docs pushes
+    # must not republish the mutable 0.1.0 image tag or change its digest.
+    tags: ["devtool-v*"]
   workflow_dispatch:
 
 permissions:

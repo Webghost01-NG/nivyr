@@ -1,184 +1,165 @@
 {
   "schema": 1,
-  "scenario": "external npm tarball lifecycle plus forged-txid red/green against memo and destination reference apps",
+  "scenario": "external npm tarball lifecycle and forged-txid red/green against memo and destination reference apps",
   "packageVersion": "0.1.0",
+  "tarballSha512": "31a98626d791853b674f07afd7541d8841665d793ab4e662abb42033ab6b730648a5010168adb808f3e103674856b5a437d63f15a28adaf0b250502b4d210e7c",
   "imageDigest": "sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9",
-  "host": "Fedora Linux 44 x86_64",
+  "host": "Fedora Linux 44 x86_64; Node.js 22.23.1; Docker 29.8.1; Compose 5.5.1",
   "imageCache": "warm",
   "runs": 20,
   "passes": 20,
+  "failureCount": 0,
   "failures": [],
   "durationsMs": [
-    73990,
-    66240,
-    67374,
-    66944,
-    71751,
-    67280,
-    68585,
-    66878,
-    68276,
-    68228,
-    67781,
-    67012,
-    67169,
-    69463,
-    68678,
-    66410,
-    67355,
-    64990,
-    74594,
-    71570
+    132620,
+    138299,
+    127765,
+    130817,
+    130737,
+    152526,
+    135873,
+    126609,
+    143010,
+    132215,
+    137419,
+    132546,
+    138304,
+    132488,
+    128577,
+    124299,
+    126705,
+    125674,
+    122421,
+    122904
   ],
-  "durationsSeconds": [
-    73.99,
-    66.24,
-    67.374,
-    66.944,
-    71.751,
-    67.28,
-    68.585,
-    66.878,
-    68.276,
-    68.228,
-    67.781,
-    67.012,
-    67.169,
-    69.463,
-    68.678,
-    66.41,
-    67.355,
-    64.99,
-    74.594,
-    71.57
-  ],
-  "minSeconds": 64.99,
-  "medianSeconds": 67.578,
-  "p95Seconds": 73.99,
-  "maxSeconds": 74.594,
-  "evidenceNote": "All 20 attempts were retained; failures, if any, were not discarded or rerun. Per-run logs remain in the external project .nivyr/evidence directory on the recorded host.",
-  "status": "PASS",
-  "failureCount": 0,
+  "minSeconds": 122.421,
+  "medianSeconds": 131.516,
+  "p95Seconds": 143.01,
+  "maxSeconds": 152.526,
   "runResults": [
     {
       "run": 1,
       "status": "PASS",
-      "durationMs": 73990,
+      "durationMs": 132620,
       "exitCode": 0
     },
     {
       "run": 2,
       "status": "PASS",
-      "durationMs": 66240,
+      "durationMs": 138299,
       "exitCode": 0
     },
     {
       "run": 3,
       "status": "PASS",
-      "durationMs": 67374,
+      "durationMs": 127765,
       "exitCode": 0
     },
     {
       "run": 4,
       "status": "PASS",
-      "durationMs": 66944,
+      "durationMs": 130817,
       "exitCode": 0
     },
     {
       "run": 5,
       "status": "PASS",
-      "durationMs": 71751,
+      "durationMs": 130737,
       "exitCode": 0
     },
     {
       "run": 6,
       "status": "PASS",
-      "durationMs": 67280,
+      "durationMs": 152526,
       "exitCode": 0
     },
     {
       "run": 7,
       "status": "PASS",
-      "durationMs": 68585,
+      "durationMs": 135873,
       "exitCode": 0
     },
     {
       "run": 8,
       "status": "PASS",
-      "durationMs": 66878,
+      "durationMs": 126609,
       "exitCode": 0
     },
     {
       "run": 9,
       "status": "PASS",
-      "durationMs": 68276,
+      "durationMs": 143010,
       "exitCode": 0
     },
     {
       "run": 10,
       "status": "PASS",
-      "durationMs": 68228,
+      "durationMs": 132215,
       "exitCode": 0
     },
     {
       "run": 11,
       "status": "PASS",
-      "durationMs": 67781,
+      "durationMs": 137419,
       "exitCode": 0
     },
     {
       "run": 12,
       "status": "PASS",
-      "durationMs": 67012,
+      "durationMs": 132546,
       "exitCode": 0
     },
     {
       "run": 13,
       "status": "PASS",
-      "durationMs": 67169,
+      "durationMs": 138304,
       "exitCode": 0
     },
     {
       "run": 14,
       "status": "PASS",
-      "durationMs": 69463,
+      "durationMs": 132488,
       "exitCode": 0
     },
     {
       "run": 15,
       "status": "PASS",
-      "durationMs": 68678,
+      "durationMs": 128577,
       "exitCode": 0
     },
     {
       "run": 16,
       "status": "PASS",
-      "durationMs": 66410,
+      "durationMs": 124299,
       "exitCode": 0
     },
     {
       "run": 17,
       "status": "PASS",
-      "durationMs": 67355,
+      "durationMs": 126705,
       "exitCode": 0
     },
     {
       "run": 18,
       "status": "PASS",
-      "durationMs": 64990,
+      "durationMs": 125674,
       "exitCode": 0
     },
     {
       "run": 19,
       "status": "PASS",
-      "durationMs": 74594,
+      "durationMs": 122421,
       "exitCode": 0
     },
     {
       "run": 20,
       "status": "PASS",
-      "durationMs": 71570,
+      "durationMs": 122904,
       "exitCode": 0
     }
-  ]
+  ],
+  "logDirectory": "external project .nivyr/evidence/release-reliability (local, ignored)",
+  "status": "PASS",
+  "testProject": "fresh external Node project installed from exact final npm tarball; no Nivyr checkout",
+  "failureEvidence": "All attempts retained as runResults; no failures occurred and no attempts were rerun."
 }
