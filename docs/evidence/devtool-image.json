@@ -9,5 +9,14 @@
   "buildRepositoryCommit": "7a3e5a6c8eb542c55eaafda132ebebcb5c0cf0e7",
   "workflowRun": "https://github.com/Webghost01-NG/nivyr/actions/runs/37119436768",
   "buildProvenance": "PASS: gh attestation verify validated an SLSA provenance attestation for the exact image digest and repository",
-  "localPullAndExecution": "PASS: digest-pinned image executed wallet --help and full external package wallet lifecycle; immutable digest 42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9"
+  "localPullAndExecution": "PASS: digest-pinned image executed wallet --help and full external package wallet lifecycle; immutable digest 42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9",
+  "packageTestedDigest": "sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9",
+  "mutableTagObservation": {
+    "tag": "0.1.0",
+    "digest": "sha256:4896a6d4553f13fbc614172749e8248b97c6b177f482cd833dde8b519d7a9097",
+    "verifiedAt": "2026-10-03",
+    "sourceWorkflowRun": "https://github.com/Webghost01-NG/nivyr/actions/runs/37143891161",
+    "provenance": "Verified with gh attestation verify",
+    "note": "The package remains pinned to the separately lifecycle-tested 42d7 digest. The mutable tag moved when a trusted main build ran; routine branch pushes have since been removed as triggers."
+  }
 }
