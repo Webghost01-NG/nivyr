@@ -1,0 +1,16 @@
+{
+  "chainHeight": 209,
+  "indexerHeight": 209,
+  "recipientDetected": false,
+  "walletScanHeight": null,
+  "transaction": {
+    "txid": "9dde289f2c649c727b3aa69bb13ad70e69d7c8de17e863c94b233027dd9e3691",
+    "version": 6,
+    "height": 209,
+    "confirmations": 1,
+    "ironwoodActions": 2,
+    "orchardActions": 0,
+    "transparentInputs": 0,
+    "transparentOutputs": 0
+  }
+}

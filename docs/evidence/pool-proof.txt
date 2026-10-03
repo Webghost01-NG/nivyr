@@ -1,0 +1,15 @@
+Network: regtest, NU6.3 active from height 2
+Sender and receiver: unified regtest addresses
+Payment: 2 ZEC, memo NIVYR-SPIKE-001
+Txid: 9dde289f2c649c727b3aa69bb13ad70e69d7c8de17e863c94b233027dd9e3691
+Transaction version: 6
+Ironwood actions: 2
+Orchard actions: 0
+Sapling spends/outputs: 0/0
+Transparent inputs/outputs: 0/0
+Mempool observation before mining: txid was returned by getrawmempool; in_active_chain=false
+After mining: height 209, confirmations 1, active-chain true
+Wallet sync: recipient detected the 2 ZEC payment at height 209
+Memo: wallet enhancement fetched full transaction data; recipient output then showed Memo::Text("NIVYR-SPIKE-001")
+
+This sanitized summary omits all wallet paths, seeds, and credentials.

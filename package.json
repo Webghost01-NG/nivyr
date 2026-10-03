@@ -1,13 +1,60 @@
 {
-  "name": "nivyr",
-  "version": "0.0.0",
-  "private": true,
+  "name": "@webghost01/nivyr",
+  "version": "0.1.0",
+  "description": "Integration-testing infrastructure for Zcash payment applications",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Webghost01-NG/nivyr.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist/packages/test/src/index.js",
+    "dist/packages/test/src/index.d.ts",
+    "dist/packages/test/src/nivyr.js",
+    "dist/packages/test/src/nivyr.d.ts",
+    "dist/packages/test/src/parse.js",
+    "dist/packages/test/src/parse.d.ts",
+    "dist/packages/test/src/process.js",
+    "dist/packages/test/src/process.d.ts",
+    "dist/packages/test/src/rpc.js",
+    "dist/packages/test/src/rpc.d.ts",
+    "dist/packages/test/src/evidence.js",
+    "dist/packages/test/src/evidence.d.ts",
+    "dist/packages/test/src/adapter.js",
+    "dist/packages/test/src/adapter.d.ts",
+    "dist/packages/test/src/types.js",
+    "dist/packages/test/src/types.d.ts",
+    "dist/src/cli/index.js",
+    "dist/src/cli/lifecycle.js",
+    "dist/scripts/nivyr.js",
+    "config/regtest-activation-heights.toml",
+    "docker/compose.yml",
+    "docker/config/*.toml",
+    "README.md"
+  ],
   "type": "module",
-  "description": "Experimental TypeScript controls for real shielded Zcash payment lifecycles",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
+    "test:integration": "node --experimental-strip-types scripts/run-integration.ts",
+    "nivyr:doctor": "node dist/src/cli/index.js doctor",
+    "nivyr:up": "node dist/src/cli/index.js up",
+    "nivyr:test": "node dist/src/cli/index.js test",
+    "nivyr:down": "node dist/src/cli/index.js down",
+    "merchant": "node --experimental-strip-types examples/merchant/server.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/packages/test/src/index.d.ts",
+      "import": "./dist/packages/test/src/index.js"
+    }
+  },
+  "bin": {
+    "nivyr": "./dist/src/cli/index.js"
   },
   "devDependencies": {
     "@types/node": "24.7.0",
@@ -15,6 +62,6 @@
     "vitest": "5.0.3"
   },
   "engines": {
-    "node": ">=22.23.1"
+    "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
   }
 }

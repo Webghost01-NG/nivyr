@@ -1,0 +1,53 @@
+name: ${COMPOSE_PROJECT_NAME:-nivyr-zcash-regtest}
+services:
+  zebra:
+    image: zfnd/zebra:6.2.3@sha256:bb2a6029db277ee3a10e951dcc0ddd36b4cbcbe0fad684746d695ee21d53fde2
+    restart: unless-stopped
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    environment:
+      ZEBRA_NETWORK__NETWORK: Regtest
+      ZEBRA_RPC__LISTEN_ADDR: 0.0.0.0:18232
+      ZEBRA_RPC__ENABLE_COOKIE_AUTH: "false"
+      ZEBRA_HEALTH__LISTEN_ADDR: 0.0.0.0:8080
+      ZEBRA_HEALTH__MIN_CONNECTED_PEERS: "0"
+      ZEBRA_HEALTH__ENFORCE_ON_TEST_NETWORKS: "false"
+      ZEBRA_MINING__MINER_ADDRESS: ${ZEBRA_MINING__MINER_ADDRESS:-tmSRd1r8gs77Ja67Fw1JcdoXytxsyrLTPJm}
+    volumes:
+      - chain:/home/zebra/.cache/zebra
+      - ./config/zebra.toml:/home/zebra/.config/zebrad.toml:ro
+    ports:
+      - 127.0.0.1:49232:18232
+      - 127.0.0.1:49080:8080
+    healthcheck:
+      test: [CMD-SHELL, "curl -sf -X POST -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"method\":\"getblockchaininfo\",\"params\":[],\"id\":1}' http://127.0.0.1:18232 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+  zaino:
+    image: zingodevops/zainod:0.10.1-no-tls@sha256:c8428a39d510fd59a9182a5e19cf473d6af6a4b6a672aff8b1a690e9c23c17b9
+    platform: linux/amd64
+    restart: unless-stopped
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    entrypoint: [bash, -c, 'ip="$$(getent ahostsv4 "$$HOSTNAME")"; ip="$${ip%% *}"; export ZAINO_JSON_SERVER_SETTINGS__JSON_RPC_LISTEN_ADDRESS="$${ip}:8237"; exec /entrypoint.sh "$$@"', --]
+    command: [start, --config, /etc/zaino/zindexer.toml]
+    depends_on:
+      zebra:
+        condition: service_healthy
+    environment:
+      ZAINO_NETWORK: Regtest
+      ZAINO_VALIDATOR_SETTINGS__VALIDATOR_JSONRPC_LISTEN_ADDRESS: zebra:18232
+      ZAINO_GRPC_SETTINGS__LISTEN_ADDRESS: 0.0.0.0:8137
+    volumes:
+      - zaino:/app/data
+      - ./config/zaino.toml:/etc/zaino/zindexer.toml:ro
+    ports:
+      - 127.0.0.1:49137:8137
+      - 127.0.0.1:49237:8237
+volumes:
+  chain:
+  zaino:

@@ -1,0 +1,48 @@
+{
+  "project": "nivyr-bootstrap-cleanroom",
+  "runtimePath": ".cache/runtime/nivyr-bootstrap-cleanroom",
+  "freshBeforeRun": {
+    "runtimeDirectoryExisted": false,
+    "composeProjectHadContainers": false,
+    "walletDidNotExist": true,
+    "distinctComposeProject": true
+  },
+  "walletAddress": "tmTLj5E8ofPJ8P4UWPZyqJFXYSX87dmDnyv",
+  "initialChainHeight": 0,
+  "activationHeight": 2,
+  "controlledCoinbaseBlocks": 100,
+  "controlledTipBeforeMaturity": 102,
+  "controlledRewardRange": [
+    3,
+    102
+  ],
+  "maturityBlocks": 100,
+  "maturityTip": 202,
+  "matureTransparentZatoshiBeforeShield": 62500000000,
+  "shield": {
+    "txid": "56a733a1825bd2c9a0e258e27686ae140e6ebeabc3b314a53a50eb9024eb597d",
+    "version": 6,
+    "minedHeight": 203,
+    "confirmations": 1,
+    "transparentInputs": 100,
+    "transparentOutputs": 0,
+    "ironwoodActions": 4,
+    "orchardActions": 0,
+    "saplingShieldedOutputs": 0
+  },
+  "final": {
+    "height": 203,
+    "ironwoodSpendableZatoshi": 62499480000,
+    "ready": true,
+    "nu6_3": "active"
+  },
+  "manualIntervention": "none",
+  "infrastructureVolumesCreatedAt": "2026-10-01T15:13:07+01:00",
+  "readyAt": "2026-10-01T14:16:23.273Z",
+  "elapsedFromFirstInfrastructureVolumeToReadySeconds": 196,
+  "reusedSecondRun": {
+    "senderAddressUnchanged": true,
+    "upSeconds": 5.35,
+    "integrationPasses": 2
+  }
+}

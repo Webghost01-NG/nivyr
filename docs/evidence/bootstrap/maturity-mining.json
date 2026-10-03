@@ -1,0 +1,16 @@
+{
+  "before_height": 102,
+  "after_height": 202,
+  "maturity_only_blocks": 100,
+  "coinbase_destination": "Z3 configured default non-sender miner address",
+  "first_maturity_block_height": 103,
+  "first_maturity_coinbase_recipients": [
+    "tmSRd1r8gs77Ja67Fw1JcdoXytxsyrLTPJm"
+  ],
+  "controlled_sender_reward_range": [
+    3,
+    102
+  ],
+  "latest_controlled_reward_maturity_candidate_height": 202,
+  "next_shield_candidate_height": 203
+}

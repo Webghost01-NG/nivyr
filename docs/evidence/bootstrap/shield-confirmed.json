@@ -1,0 +1,16 @@
+{
+  "txid": "0022346ce508e42dd6e0672f67e92c2a5cddcd4c3c65172d88b8707aded6847d",
+  "mined": true,
+  "height": 203,
+  "confirmations": 1,
+  "chain_height": 203,
+  "zaino_indexed_height": 203,
+  "confirmation_block_hash": "03cd7a429067df50ec5c203e8dd20dc691ce8d94f2958f9791e0bb37edd57f2d",
+  "version": 6,
+  "ironwood_actions": 4,
+  "orchard_actions": 0,
+  "sapling_spends": 0,
+  "sapling_outputs": 0,
+  "transparent_inputs": 100,
+  "transparent_outputs": 0
+}

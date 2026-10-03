@@ -1,0 +1,15 @@
+{
+  "recorded_at_utc": "2026-10-01T13:27:28.647555+00:00",
+  "project": "nivyr-cleanroom-20261001-01",
+  "source": "Z3 clean archive from pinned commit e84ce9fd8e864ff0b2a8a62f6ce14392145db0fb",
+  "pre_start_containers": [],
+  "pre_start_dedicated_volumes": {
+    "nivyr-cleanroom-20261001-01-chain": "absent",
+    "nivyr-cleanroom-20261001-01-cookie": "absent",
+    "nivyr-cleanroom-20261001-01-zaino": "absent",
+    "nivyr-cleanroom-20261001-01-zallet": "absent",
+    "nivyr-cleanroom-20261001-01-zallet-ca-certificates": "absent"
+  },
+  "preexisting_z3_project_preserved": "z3-regtest (existing containers and volumes were not modified)",
+  "freshness_assertion": true
+}

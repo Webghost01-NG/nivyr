@@ -1,0 +1,14 @@
+{
+  "txid": "0022346ce508e42dd6e0672f67e92c2a5cddcd4c3c65172d88b8707aded6847d",
+  "version": 6,
+  "in_active_chain": false,
+  "height": null,
+  "confirmations": 0,
+  "transparent_input_count": 100,
+  "transparent_output_count": 0,
+  "sapling_spends": 0,
+  "sapling_outputs": 0,
+  "orchard_actions": 0,
+  "ironwood_actions": 4,
+  "chain_height": 202
+}

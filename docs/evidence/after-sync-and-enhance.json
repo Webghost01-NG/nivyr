@@ -1,0 +1,9 @@
+{
+  "txid": "9dde289f2c649c727b3aa69bb13ad70e69d7c8de17e863c94b233027dd9e3691",
+  "detected": true,
+  "minedHeight": 209,
+  "amountZatoshi": "200000000",
+  "pool": "ironwood",
+  "memo": "NIVYR-SPIKE-001",
+  "memoAvailableAfter": "wallet enhance"
+}

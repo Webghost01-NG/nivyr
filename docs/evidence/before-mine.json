@@ -1,0 +1,14 @@
+{
+  "txid": "9dde289f2c649c727b3aa69bb13ad70e69d7c8de17e863c94b233027dd9e3691",
+  "version": 6,
+  "broadcast": true,
+  "mined": false,
+  "height": null,
+  "confirmations": 0,
+  "transparentInputs": 0,
+  "transparentOutputs": 0,
+  "saplingSpends": 0,
+  "saplingOutputs": 0,
+  "orchardActions": 0,
+  "ironwoodActions": 2
+}

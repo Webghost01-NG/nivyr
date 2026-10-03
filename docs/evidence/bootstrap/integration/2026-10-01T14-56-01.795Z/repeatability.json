@@ -1,0 +1,239 @@
+[
+  {
+    "run": 1,
+    "txid": "9d975a9096f207178e66869d783b47be14b3c9b4116a9f13be8b540ca241b7aa",
+    "memo": "NIVYR-SPIKE-RUN-1",
+    "beforeMine": {
+      "txid": "9d975a9096f207178e66869d783b47be14b3c9b4116a9f13be8b540ca241b7aa",
+      "version": 6,
+      "broadcast": true,
+      "mined": false,
+      "height": null,
+      "confirmations": 0,
+      "blockHash": null,
+      "transparentInputs": 0,
+      "transparentOutputs": 0,
+      "saplingSpends": 0,
+      "saplingOutputs": 0,
+      "orchardActions": 0,
+      "ironwoodActions": 2
+    },
+    "afterMine": {
+      "txid": "9d975a9096f207178e66869d783b47be14b3c9b4116a9f13be8b540ca241b7aa",
+      "version": 6,
+      "broadcast": true,
+      "mined": true,
+      "height": 213,
+      "confirmations": 1,
+      "blockHash": "d837b4627783a1b586c22b935e135f786d2ebdfec690999e8adeb89ba776331b",
+      "transparentInputs": 0,
+      "transparentOutputs": 0,
+      "saplingSpends": 0,
+      "saplingOutputs": 0,
+      "orchardActions": 0,
+      "ironwoodActions": 2
+    },
+    "beforeSync": {
+      "detected": false,
+      "minedHeight": null,
+      "scanHeight": null,
+      "payment": null
+    },
+    "appStatuses": {
+      "afterMine": "unpaid",
+      "afterScan": "unpaid",
+      "afterEnhance": "paid"
+    },
+    "afterSync": {
+      "detected": true,
+      "minedHeight": 213,
+      "scanHeight": 213,
+      "payment": {
+        "txid": "9d975a9096f207178e66869d783b47be14b3c9b4116a9f13be8b540ca241b7aa",
+        "minedHeight": 213,
+        "amountZatoshi": "1000000",
+        "pool": "ironwood",
+        "memo": null
+      }
+    },
+    "afterEnhance": {
+      "detected": true,
+      "minedHeight": 213,
+      "scanHeight": 213,
+      "payment": {
+        "txid": "9d975a9096f207178e66869d783b47be14b3c9b4116a9f13be8b540ca241b7aa",
+        "minedHeight": 213,
+        "amountZatoshi": "1000000",
+        "pool": "ironwood",
+        "memo": "NIVYR-SPIKE-RUN-1"
+      }
+    },
+    "timingsMs": {
+      "walletCreation": 2025,
+      "broadcast": 14818,
+      "mining": 1450,
+      "indexerConvergence": 552,
+      "walletSync": 549,
+      "memoEnhancement": 548,
+      "total": 19942
+    }
+  },
+  {
+    "run": 2,
+    "txid": "57467611d33a07b28fa3eb53b2ed0767b828930bad7f74503626f77710c1fdff",
+    "memo": "NIVYR-SPIKE-RUN-2",
+    "beforeMine": {
+      "txid": "57467611d33a07b28fa3eb53b2ed0767b828930bad7f74503626f77710c1fdff",
+      "version": 6,
+      "broadcast": true,
+      "mined": false,
+      "height": null,
+      "confirmations": 0,
+      "blockHash": null,
+      "transparentInputs": 0,
+      "transparentOutputs": 0,
+      "saplingSpends": 0,
+      "saplingOutputs": 0,
+      "orchardActions": 0,
+      "ironwoodActions": 2
+    },
+    "afterMine": {
+      "txid": "57467611d33a07b28fa3eb53b2ed0767b828930bad7f74503626f77710c1fdff",
+      "version": 6,
+      "broadcast": true,
+      "mined": true,
+      "height": 214,
+      "confirmations": 1,
+      "blockHash": "80f82f907e1f91af5655b04a0ab4441a0f2bfcd9592766791824149776312d50",
+      "transparentInputs": 0,
+      "transparentOutputs": 0,
+      "saplingSpends": 0,
+      "saplingOutputs": 0,
+      "orchardActions": 0,
+      "ironwoodActions": 2
+    },
+    "beforeSync": {
+      "detected": false,
+      "minedHeight": null,
+      "scanHeight": null,
+      "payment": null
+    },
+    "appStatuses": {
+      "afterMine": "unpaid",
+      "afterScan": "unpaid",
+      "afterEnhance": "paid"
+    },
+    "afterSync": {
+      "detected": true,
+      "minedHeight": 214,
+      "scanHeight": 214,
+      "payment": {
+        "txid": "57467611d33a07b28fa3eb53b2ed0767b828930bad7f74503626f77710c1fdff",
+        "minedHeight": 214,
+        "amountZatoshi": "1000000",
+        "pool": "ironwood",
+        "memo": null
+      }
+    },
+    "afterEnhance": {
+      "detected": true,
+      "minedHeight": 214,
+      "scanHeight": 214,
+      "payment": {
+        "txid": "57467611d33a07b28fa3eb53b2ed0767b828930bad7f74503626f77710c1fdff",
+        "minedHeight": 214,
+        "amountZatoshi": "1000000",
+        "pool": "ironwood",
+        "memo": "NIVYR-SPIKE-RUN-2"
+      }
+    },
+    "timingsMs": {
+      "walletCreation": 1543,
+      "broadcast": 10548,
+      "mining": 1092,
+      "indexerConvergence": 215,
+      "walletSync": 428,
+      "memoEnhancement": 530,
+      "total": 14356
+    }
+  },
+  {
+    "run": 3,
+    "txid": "516dea74b37e118bdcdc980b403d0156f8ebad28fd3158bfef39589c61ed43c5",
+    "memo": "NIVYR-ORDER-69",
+    "beforeMine": {
+      "txid": "516dea74b37e118bdcdc980b403d0156f8ebad28fd3158bfef39589c61ed43c5",
+      "version": 6,
+      "broadcast": true,
+      "mined": false,
+      "height": null,
+      "confirmations": 0,
+      "blockHash": null,
+      "transparentInputs": 0,
+      "transparentOutputs": 0,
+      "saplingSpends": 0,
+      "saplingOutputs": 0,
+      "orchardActions": 0,
+      "ironwoodActions": 2
+    },
+    "afterMine": {
+      "txid": "516dea74b37e118bdcdc980b403d0156f8ebad28fd3158bfef39589c61ed43c5",
+      "version": 6,
+      "broadcast": true,
+      "mined": true,
+      "height": 215,
+      "confirmations": 1,
+      "blockHash": "4ffbb9afebc380e7b2f72c37cff83e04755df9c4778aa23b79b2a776cbc65788",
+      "transparentInputs": 0,
+      "transparentOutputs": 0,
+      "saplingSpends": 0,
+      "saplingOutputs": 0,
+      "orchardActions": 0,
+      "ironwoodActions": 2
+    },
+    "beforeSync": {
+      "detected": false,
+      "minedHeight": null,
+      "scanHeight": null,
+      "payment": null
+    },
+    "appStatuses": {
+      "afterMine": "unpaid",
+      "afterScan": "unpaid",
+      "afterEnhance": "unpaid"
+    },
+    "afterSync": {
+      "detected": true,
+      "minedHeight": 215,
+      "scanHeight": 215,
+      "payment": {
+        "txid": "516dea74b37e118bdcdc980b403d0156f8ebad28fd3158bfef39589c61ed43c5",
+        "minedHeight": 215,
+        "amountZatoshi": "1000000",
+        "pool": "ironwood",
+        "memo": null
+      }
+    },
+    "afterEnhance": {
+      "detected": true,
+      "minedHeight": 215,
+      "scanHeight": 215,
+      "payment": {
+        "txid": "516dea74b37e118bdcdc980b403d0156f8ebad28fd3158bfef39589c61ed43c5",
+        "minedHeight": 215,
+        "amountZatoshi": "1000000",
+        "pool": "ironwood",
+        "memo": "NIVYR-ORDER-69"
+      }
+    },
+    "timingsMs": {
+      "walletCreation": 1750,
+      "broadcast": 9893,
+      "mining": 899,
+      "indexerConvergence": 953,
+      "walletSync": 416,
+      "memoEnhancement": 510,
+      "total": 14421
+    }
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "host": "fedora-primary",
+  "status": "VERIFIED",
+  "recordedAt": "2026-10-03",
+  "os": "Fedora Linux 44",
+  "architecture": "x86_64",
+  "node": "22.23.1",
+  "docker": "29.8.1",
+  "compose": "5.5.1",
+  "packageVersion": "0.1.0",
+  "doctor": "PASS_WITH_LOW_DISK_ADVISORY (3.8 GiB available; GHCR reachable)",
+  "coldStartSeconds": null,
+  "bootstrap": "PASS from external npm tarball; runtime READY at height 203; NU6.3 active; Ironwood spendable 624.99480000 local regtest ZEC",
+  "integration": "PASS: real lifecycle and forged-txid red/green via npx nivyr test",
+  "shutdown": "PASS: project containers stopped; volumes and wallet state preserved",
+  "rustCargo": "NOT INVOKED; cargo/rustc trap wrappers logged no calls",
+  "note": "External project had no repository checkout. Image was already cached, so this is not a cold-image timing result.",
+  "libraryApi": "PASS: final tarball no-argument createNivyr() performed real send, mine, index, explicit sync, enhance, and memo observation (15457 ms)"
+}
