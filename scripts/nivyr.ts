@@ -387,7 +387,7 @@ async function preparePackageAssets(): Promise<void> {
   await mkdir(join(z3Runtime, "config"), { recursive: true, mode: 0o700 });
   await writeAtomic(join(z3Runtime, "docker-compose.yml"), await readFile(join(packageRoot, "docker", "compose.yml"), "utf8"));
   for (const file of ["zebra.toml", "zaino.toml"]) {
-    await writeAtomic(join(z3Runtime, "config", file), await readFile(join(packageRoot, "docker", "config", file), "utf8"), 0o600);
+    await writeAtomic(join(z3Runtime, "config", file), await readFile(join(packageRoot, "docker", "config", file), "utf8"), 0o644);
   }
 }
 
@@ -562,7 +562,7 @@ async function ensureWallet(state: BootstrapState): Promise<string> {
       "--identity", state.senderIdentity,
       "--network", "regtest",
       "--activation-heights", state.activationHeights,
-      "--server", `${devtoolMode === "image" ? "host.docker.internal" : "127.0.0.1"}:${ports.zainoGrpc}`,
+      "--server", `127.0.0.1:${devtoolMode === "image" ? 8137 : ports.zainoGrpc}`,
     ], { input: "\n", timeoutMs: 120_000 });
   }
   const addressOutput = walletCommand(state, ["list-addresses", "--receiver", "transparent"]);
@@ -584,9 +584,8 @@ function walletCommand(state: BootstrapState, args: readonly string[], options: 
     const uid = typeof process.getuid === "function" ? process.getuid() : 10001;
     const gid = typeof process.getgid === "function" ? process.getgid() : 10001;
     const mapped = fullArgs.map((arg) => arg === state.activationHeights ? "/nivyr-package/regtest-activation-heights.toml"
-      : arg.startsWith(`${runtimeRoot}/`) ? `/nivyr/${arg.slice(runtimeRoot.length + 1)}`
-        : arg.startsWith("127.0.0.1:") ? arg.replace("127.0.0.1:", "host.docker.internal:") : arg);
-    return commandText("docker", ["run", "--rm", "--platform", "linux/amd64", "--user", `${uid}:${gid}`, "--add-host", "host.docker.internal:host-gateway",
+      : arg.startsWith(`${runtimeRoot}/`) ? `/nivyr/${arg.slice(runtimeRoot.length + 1)}` : arg);
+    return commandText("docker", ["run", "--rm", "--platform", "linux/amd64", "--user", `${uid}:${gid}`, "--network", `container:${composeProject}-zaino-1`,
       "--mount", `type=bind,source=${runtimeRoot},target=/nivyr`,
       "--mount", `type=bind,source=${state.activationHeights},target=/nivyr-package/regtest-activation-heights.toml,readonly`,
       state.devtoolPath, ...mapped], { input: options.input, timeoutMs: options.timeoutMs ?? 300_000 });
@@ -691,7 +690,7 @@ async function ensureFunding(state: BootstrapState, rpc: ReturnType<typeof zebra
   await mineToHeight(maturityTarget, rpc);
   height = await chainHeight(rpc);
   await waitForIndexer(height);
-  walletCommand(state, ["sync", "--server", `127.0.0.1:${ports.zainoGrpc}`]);
+  walletCommand(state, ["sync", "--server", `127.0.0.1:${devtoolMode === "image" ? 8137 : ports.zainoGrpc}`]);
   const transparent = walletBalance(state);
   if (transparent.chain_tip_height < height) {
     throw new Error(`Sender wallet scan is at ${transparent.chain_tip_height}, below chain height ${height}`);
@@ -704,7 +703,7 @@ async function ensureFunding(state: BootstrapState, rpc: ReturnType<typeof zebra
   if (!state.shieldTxid) state.shieldTxid = await recoverPendingShield(state, rpc);
   if (!state.shieldTxid) {
     log("Shielding mature local coinbase rewards to the NU6.3-active pool");
-    const output = walletCommand(state, ["shield", "--identity", state.senderIdentity, "--server", `127.0.0.1:${ports.zainoGrpc}`]);
+    const output = walletCommand(state, ["shield", "--identity", state.senderIdentity, "--server", `127.0.0.1:${devtoolMode === "image" ? 8137 : ports.zainoGrpc}`]);
     const matches = [...output.matchAll(/\b([0-9a-f]{64})\b/g)];
     state.shieldTxid = matches.at(-1)?.[1];
     if (!state.shieldTxid) throw new Error("Pinned zcash-devtool shield output did not contain a 64-character transaction ID. Nivyr stopped before marking the sender READY; inspect the wallet transaction list and rerun bootstrap.");
@@ -728,7 +727,7 @@ async function ensureFunding(state: BootstrapState, rpc: ReturnType<typeof zebra
   const txHeight = shield.height;
   if (typeof txHeight !== "number") throw new Error(`Confirmed shield transaction has no mined height: ${state.shieldTxid}`);
   await waitForIndexer(txHeight);
-  walletCommand(state, ["sync", "--server", `127.0.0.1:${ports.zainoGrpc}`]);
+  walletCommand(state, ["sync", "--server", `127.0.0.1:${devtoolMode === "image" ? 8137 : ports.zainoGrpc}`]);
   const finalBalance = walletBalance(state);
   if (finalBalance.ironwood_spendable < targetSpendableZatoshi) {
     throw new Error(`Shield confirmation did not produce the required spendable Ironwood balance: ${JSON.stringify(finalBalance)}`);
@@ -766,7 +765,7 @@ async function up(): Promise<void> {
   log(`Pinned Zebra ready at ${height}; pinned Zaino converged`);
   const senderAddress = await ensureWallet(state);
   await waitForIndexer(await chainHeight(rpc));
-  walletCommand(state, ["sync", "--server", `127.0.0.1:${ports.zainoGrpc}`]);
+  walletCommand(state, ["sync", "--server", `127.0.0.1:${devtoolMode === "image" ? 8137 : ports.zainoGrpc}`]);
   let balance = walletBalance(state);
   if (balance.ironwood_spendable < targetSpendableZatoshi) {
     balance = await ensureFunding(state, rpc);
@@ -791,7 +790,7 @@ async function up(): Promise<void> {
     ironwoodSpendableZec: (balance.ironwood_spendable / 100_000_000).toFixed(8),
     zebraRpcUrl: `http://127.0.0.1:${ports.zebraRpc}`,
     zainoJsonRpcUrl: `http://127.0.0.1:${ports.zainoJsonRpc}`,
-    lightwalletdAddress: `127.0.0.1:${ports.zainoGrpc}`,
+    lightwalletdAddress: `127.0.0.1:${devtoolMode === "image" ? 8137 : ports.zainoGrpc}`,
     runtimeRoot,
   };
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);

@@ -17,6 +17,7 @@ export class ContainerDevtoolBackend implements WalletBackend {
     private readonly image: string,
     private readonly runtimeRoot: string,
     private readonly activationHeightsPath: string,
+    private readonly composeNetwork: string,
   ) {
     if (!/@sha256:[a-f0-9]{64}$/.test(image)) throw new Error("ContainerDevtoolBackend requires a digest-pinned image reference");
   }
@@ -31,7 +32,7 @@ export class ContainerDevtoolBackend implements WalletBackend {
     });
     return run("docker", [
       "run", "--rm", "--platform", "linux/amd64", "--user", `${uid}:${gid}`,
-      "--add-host", "host.docker.internal:host-gateway",
+      "--network", this.composeNetwork,
       "--mount", `type=bind,source=${this.runtimeRoot},target=/nivyr`,
       "--mount", `type=bind,source=${this.activationHeightsPath},target=/nivyr-package/regtest-activation-heights.toml,readonly`,
       this.image,

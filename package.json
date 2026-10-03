@@ -33,7 +33,6 @@
     "config/regtest-activation-heights.toml",
     "docker/compose.yml",
     "docker/config/*.toml",
-    "docker/zcash-devtool/Dockerfile",
     "README.md"
   ],
   "type": "module",

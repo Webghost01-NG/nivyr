@@ -22,7 +22,7 @@ type Check = { label: string; ok: boolean; detail: string; required?: boolean };
 function command(executable: string, args: string[], timeout = 10_000): { ok: boolean; output: string } {
   const result = spawnSync(executable, args, { encoding: "utf8", timeout, windowsHide: true });
   if (result.error) return { ok: false, output: result.error.message };
-  return { ok: result.status === 0, output: (result.stdout || result.stderr || `exit ${result.status}`).trim() };
+  return { ok: result.status === 0, output: (result.status === 0 ? result.stdout : result.stderr || result.stdout || `exit ${result.status}`).trim() };
 }
 
 async function portAvailable(port: number): Promise<boolean> {
