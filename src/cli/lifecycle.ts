@@ -97,6 +97,7 @@ async function main(): Promise<void> {
     await nivyr.mine(1);
     const invalidMined = await nivyr.waitForTransaction(invalidTxid, (tx) => tx.mined);
     await nivyr.waitForIndexer(invalidMined.height!);
+    await nivyr.sync(sender);
     const buggy = await adapter.claimTxid(invoice.id, invalidTxid);
     if (buggy.status !== "paid") throw new Error(`${pattern} fixture did not reproduce mined-only settlement.`);
     const invalidObservation = await nivyr.observeWallet(expectedWallet, invalidTxid);
@@ -110,6 +111,7 @@ async function main(): Promise<void> {
     await nivyr.mine(1);
     const validMined = await nivyr.waitForTransaction(validTxid, (tx) => tx.mined);
     await nivyr.waitForIndexer(validMined.height!);
+    await nivyr.sync(sender);
     await nivyr.sync(expectedWallet);
     const validDetected = await nivyr.observeWallet(expectedWallet, validTxid);
     await nivyr.enhance(expectedWallet);
@@ -143,6 +145,7 @@ async function main(): Promise<void> {
   await nivyr.mine(1);
   const mined = await nivyr.waitForTransaction(txid, (tx) => tx.mined);
   await nivyr.waitForIndexer(mined.height!);
+  await nivyr.sync(sender);
   const beforeSync = await nivyr.observeWallet(recipient, txid);
   if (beforeSync.detected) throw new Error("Recipient wallet was not unscanned after indexer convergence.");
   await nivyr.sync(recipient);

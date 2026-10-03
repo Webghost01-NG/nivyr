@@ -726,9 +726,18 @@ async function ensureFunding(state: BootstrapState, rpc: ReturnType<typeof zebra
   }
   const txHeight = shield.height;
   if (typeof txHeight !== "number") throw new Error(`Confirmed shield transaction has no mined height: ${state.shieldTxid}`);
-  await waitForIndexer(txHeight);
-  walletCommand(state, ["sync", "--server", `127.0.0.1:${devtoolMode === "image" ? 8137 : ports.zainoGrpc}`]);
-  const finalBalance = walletBalance(state);
+  // Give the shield transaction a short confirmation buffer before the runtime
+  // is marked READY. The indexed JSON-RPC height can lead the lightwallet gRPC
+  // scan view during startup, so a positive balance summary alone is not a
+  // sufficient readiness barrier for the immediate public `up` → `test` path.
+  const spendableHeight = txHeight + 2;
+  await mineToHeight(spendableHeight, rpc);
+  await waitForIndexer(spendableHeight);
+  const finalBalance = await waitFor("sender wallet to scan shield confirmations", async () => {
+    walletCommand(state, ["sync", "--server", `127.0.0.1:${devtoolMode === "image" ? 8137 : ports.zainoGrpc}`]);
+    const balance = walletBalance(state);
+    return balance.chain_tip_height >= spendableHeight ? balance : false;
+  });
   if (finalBalance.ironwood_spendable < targetSpendableZatoshi) {
     throw new Error(`Shield confirmation did not produce the required spendable Ironwood balance: ${JSON.stringify(finalBalance)}`);
   }

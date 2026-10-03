@@ -47,8 +47,6 @@ Install the package into an ordinary project:
 npm install -D @webghost01/nivyr
 ```
 
-The 0.1.0 artifact passed external tarball acceptance, but is not yet published to npm; use the tarball install below until the maintainer completes npm's required two-factor authorization.
-
 For direct tarball installs, including package acceptance tests:
 
 ```sh
@@ -57,7 +55,7 @@ npm install -D /path/to/webghost01-nivyr-0.1.0.tgz
 
 ## Quickstart
 
-The full CLI sequence has passed on the Fedora Linux 44 x86_64 productization host using an external tarball installation. If the registry version is not available, install the maintainer tarball as shown above:
+The full CLI sequence has passed on the Fedora Linux 44 x86_64 productization host using an external package installation:
 
 ```sh
 npx nivyr doctor
