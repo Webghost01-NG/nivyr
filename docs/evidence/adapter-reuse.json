@@ -1,0 +1,7 @@
+{
+  "status": "PENDING",
+  "app1": "reference merchant HTTP API (existing real lifecycle test)",
+  "app2": null,
+  "sameScenarioMachinery": false,
+  "note": "The shared app adapter is only a type surface today. No second application has run through the same real-payment scenario."
+}

@@ -1,5 +1,45 @@
 import { spawn } from "node:child_process";
 
+export interface WalletBackend {
+  execute(args: readonly string[], timeoutMs?: number): Promise<CommandResult>;
+}
+
+export class LocalDevtoolBackend implements WalletBackend {
+  constructor(private readonly executable: string) {}
+
+  execute(args: readonly string[], timeoutMs = 300_000): Promise<CommandResult> {
+    return run(this.executable, args, timeoutMs);
+  }
+}
+
+export class ContainerDevtoolBackend implements WalletBackend {
+  constructor(
+    private readonly image: string,
+    private readonly runtimeRoot: string,
+    private readonly activationHeightsPath: string,
+  ) {
+    if (!/@sha256:[a-f0-9]{64}$/.test(image)) throw new Error("ContainerDevtoolBackend requires a digest-pinned image reference");
+  }
+
+  execute(args: readonly string[], timeoutMs = 300_000): Promise<CommandResult> {
+    const uid = typeof process.getuid === "function" ? process.getuid() : 10001;
+    const gid = typeof process.getgid === "function" ? process.getgid() : 10001;
+    const mapped = args.map((arg) => {
+      if (arg === this.activationHeightsPath) return "/nivyr-package/regtest-activation-heights.toml";
+      if (arg.startsWith(`${this.runtimeRoot}/`)) return `/nivyr/${arg.slice(this.runtimeRoot.length + 1)}`;
+      return arg;
+    });
+    return run("docker", [
+      "run", "--rm", "--platform", "linux/amd64", "--user", `${uid}:${gid}`,
+      "--add-host", "host.docker.internal:host-gateway",
+      "--mount", `type=bind,source=${this.runtimeRoot},target=/nivyr`,
+      "--mount", `type=bind,source=${this.activationHeightsPath},target=/nivyr-package/regtest-activation-heights.toml,readonly`,
+      this.image,
+      ...mapped,
+    ], timeoutMs);
+  }
+}
+
 export interface CommandResult {
   readonly stdout: string;
   readonly stderr: string;

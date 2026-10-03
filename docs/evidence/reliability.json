@@ -1,0 +1,13 @@
+{
+  "scenario": "core lifecycle from external npm package",
+  "status": "PENDING",
+  "runs": 0,
+  "passes": 0,
+  "failures": 0,
+  "durationsSeconds": [],
+  "min": null,
+  "median": null,
+  "p95": null,
+  "max": null,
+  "note": "Do not substitute repository spike runs; this loop must follow packaged integration stabilization."
+}

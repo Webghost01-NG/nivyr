@@ -1,0 +1,6 @@
+{
+  "status": "PENDING",
+  "bugReproduced": false,
+  "correctedBehavior": "NOT TESTED",
+  "note": "Current merchant API accepts lifecycle observations and exact amount/memo; it has no customer-supplied txid settlement endpoint yet. Add the exploit fixture and regression before making a security-demo claim."
+}

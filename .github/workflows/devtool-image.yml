@@ -44,6 +44,14 @@ jobs:
           cache-from: type=gha,scope=zcash-devtool
           cache-to: type=gha,mode=max,scope=zcash-devtool
           provenance: mode=max
+      - name: Verify pinned wallet image commands
+        env:
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          image="ghcr.io/webghost01-ng/nivyr-zcash-devtool@${IMAGE_DIGEST}"
+          docker pull --platform linux/amd64 "$image"
+          docker run --rm --platform linux/amd64 "$image" --help
+          docker run --rm --platform linux/amd64 "$image" wallet --help
       - uses: actions/attest-build-provenance@v2
         with:
           subject-name: ghcr.io/webghost01-ng/nivyr-zcash-devtool

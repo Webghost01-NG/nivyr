@@ -1,0 +1,16 @@
+{
+  "host": "fedora-primary",
+  "status": "PENDING",
+  "recordedAt": "2026-10-03",
+  "os": "Fedora Linux 44",
+  "architecture": "x86_64",
+  "node": "22.23.1",
+  "docker": "29.8.1",
+  "compose": "5.5.1",
+  "packageVersion": "0.1.0",
+  "doctor": "NOT RUN",
+  "coldStartSeconds": null,
+  "bootstrap": "NOT RUN WITH PACKAGED PATH",
+  "integration": "NOT RUN WITH PACKAGED PATH",
+  "note": "Previous source-checkout lifecycle evidence remains in docs/evidence/bootstrap and docs/evidence/runs; it is not evidence for npm installation."
+}

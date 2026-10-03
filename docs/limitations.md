@@ -11,6 +11,9 @@
 - Scan-height knowledge is scoped to a Nivyr instance and a wallet it explicitly syncs. Reopening an already-used wallet in a new Nivyr instance does not reconstruct historical scan progress.
 - Tests use regtest-only default RPC credentials (`zebra`/`zebra`). Never point this package at a public or production wallet/node.
 - The reference app is intentionally tiny and in-memory. It demonstrates external application assertions, not production merchant architecture.
+- The package CLI skeleton and external npm tarball install work, but `nivyr up` is not acceptance-complete: no immutable GHCR devtool image has been published and the packaged wallet funding/readiness flow has not been proven. The package reports this as a blocker rather than claiming startup success.
+- `PaymentAppAdapter` currently supplies reusable interface types only. A second distinct application and shared scenario proof are pending.
+- The forged customer-supplied-txid exploit path has not yet been implemented or reproduced. The current merchant only receives lifecycle observations from the test.
 - There is no public generic application adapter or multi-backend interface.
 
 ## Runtime configuration and failure diagnostics

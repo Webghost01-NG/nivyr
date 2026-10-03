@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-03",
+  "package": "@webghost01/nivyr@0.1.0",
+  "tarball": "webghost01-nivyr-0.1.0.tgz",
+  "status": "PARTIAL",
+  "packDryRun": "PASS",
+  "externalInstall": "PASS",
+  "externalDoctor": "PASS_WITH_ADVISORIES",
+  "externalLibraryImport": "PASS",
+  "externalUp": "NOT RUN",
+  "externalTest": "NOT RUN",
+  "externalDown": "NOT RUN",
+  "reason": "The pinned devtool image has no published immutable GHCR digest and packaged wallet funding/readiness orchestration has not been verified.",
+  "packageContents": "24 allowlisted files; no cache, wallet/runtime state, node_modules, or evidence archives"
+}

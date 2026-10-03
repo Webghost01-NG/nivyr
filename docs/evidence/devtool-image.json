@@ -1,0 +1,13 @@
+{
+  "status": "PUBLISHED_AND_DIGEST_PINNED",
+  "image": "ghcr.io/webghost01-ng/nivyr-zcash-devtool",
+  "tag": "0.1.0",
+  "digest": "sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9",
+  "architecture": "linux/amd64",
+  "sourceRepository": "https://github.com/zcash/zcash-devtool",
+  "sourceCommit": "5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8",
+  "buildRepositoryCommit": "7a3e5a6c8eb542c55eaafda132ebebcb5c0cf0e7",
+  "workflowRun": "https://github.com/Webghost01-NG/nivyr/actions/runs/37119436768",
+  "buildProvenance": "PASS: gh attestation verify validated an SLSA provenance attestation for the exact image digest and repository",
+  "localPullAndExecution": "IN_PROGRESS"
+}

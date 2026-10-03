@@ -1,22 +1,26 @@
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdirSync as createDirectorySync, existsSync, mkdtempSync, renameSync, rmSync, writeFileSync as writeFileSyncNode } from "node:fs";
 import { chmod, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { createConnection } from "node:net";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const cacheRoot = join(root, ".cache");
-const runtimeRoot = resolve(process.env.NIVYR_BOOTSTRAP_ROOT ?? join(cacheRoot, "runtime", "nivyr-bootstrap"));
-const upstreamRoot = join(cacheRoot, "upstream");
+const root = resolve(process.env.NIVYR_PROJECT_ROOT ?? process.cwd());
+const packageRoot = resolve(process.env.NIVYR_PACKAGE_ROOT ?? join(dirname(fileURLToPath(import.meta.url)), ".."));
+const runtimeRoot = resolve(process.env.NIVYR_BOOTSTRAP_ROOT ?? join(root, ".nivyr"));
+const cacheRoot = runtimeRoot;
+const upstreamRoot = join(runtimeRoot, "upstream");
 const z3Source = join(upstreamRoot, "z3");
 const walletSource = join(upstreamRoot, "zcash-devtool");
 const z3Runtime = join(runtimeRoot, "z3");
 const statePath = join(runtimeRoot, "state.json");
 const ownerPath = join(runtimeRoot, ".nivyr-owned");
-const composeProject = process.env.NIVYR_COMPOSE_PROJECT ?? "nivyr-zcash-regtest";
+const composeProject = process.env.NIVYR_COMPOSE_PROJECT ?? `nivyr-${createHash("sha256").update(root).digest("hex").slice(0, 16)}`;
 const z3Commit = "e84ce9fd8e864ff0b2a8a62f6ce14392145db0fb";
 const walletCommit = "5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8";
+const devtoolMode = process.env.NIVYR_DEVTOOL_MODE ?? "image";
+const devtoolImage = process.env.NIVYR_DEVTOOL_IMAGE ?? "ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9";
 const zebraImage = "zfnd/zebra:6.2.3@sha256:bb2a6029db277ee3a10e951dcc0ddd36b4cbcbe0fad684746d695ee21d53fde2";
 const zainoImage = "zingodevops/zainod:0.10.1-no-tls@sha256:c8428a39d510fd59a9182a5e19cf473d6af6a4b6a672aff8b1a690e9c23c17b9";
 const zalletImage = "zodlinc/zallet:v0.1.0-beta.1@sha256:1849b4469875dc0165942c06d15fa6a7da76b2d43bade578cc8e5903a639869d";
@@ -141,7 +145,10 @@ function log(message: string): void {
 
 function compose(args: readonly string[], env: NodeJS.ProcessEnv = process.env, allowFailure = false): string {
   const envFile = join(z3Runtime, ".env.regtest");
-  return commandText("docker", ["compose", "--env-file", envFile, ...args], {
+  const files = devtoolMode === "image"
+    ? ["-f", "docker-compose.yml"]
+    : ["-f", "docker-compose.yml", "-f", "docker-compose.regtest.yml"];
+  return commandText("docker", ["compose", "--env-file", envFile, ...files, ...args], {
     cwd: z3Runtime,
     env,
     allowFailure,
@@ -201,17 +208,16 @@ function ensurePrerequisites(): void {
   const [major, minor] = process.versions.node.split(".").map(Number);
   const supported = (major === 22 && minor >= 12) || major === 24 || major >= 26;
   if (!supported) throw new Error(`Node.js ${process.versions.node} found; Nivyr requires ${JSON.stringify("^22.12.0 || ^24.0.0 || >=26.0.0")} (the pinned Vitest version's supported Node range).`);
-  requireCommand("git", ["--version"]);
-  requireCommand("tar", ["--version"]);
-  requireCommand("curl", ["--version"]);
-  requireCommand("openssl", ["version"]);
   requireCommand("docker", ["--version"]);
   requireCommand("docker", ["compose", "version", "--short"], [2, 24, 4]);
   commandText("docker", ["info"], { timeoutMs: 20_000 });
-  const cachedWalletBinary = join(walletSource, "target", "release", "zcash-devtool");
-  if (!existsSync(cachedWalletBinary)) {
+  if (devtoolMode === "source") {
+    requireCommand("git", ["--version"]);
+    requireCommand("tar", ["--version"]);
     requireCommand("rustc", ["--version"]);
     requireCommand("cargo", ["--version"]);
+  } else if (!/@sha256:[a-f0-9]{64}$/.test(devtoolImage)) {
+    throw new Error("NIVYR_DEVTOOL_MODE=image is the default, but NIVYR_DEVTOOL_IMAGE is not configured with an immutable sha256 digest. No runtime was started.");
   }
 }
 
@@ -256,6 +262,14 @@ function extractPinnedArchive(repository: string, commit: string, destination: s
 }
 
 async function ensurePinnedSources(): Promise<string> {
+  if (devtoolMode === "image") {
+    const inspect = spawnSync("docker", ["image", "inspect", devtoolImage], { encoding: "utf8" });
+    if (inspect.status !== 0) {
+      log(`Pulling digest-pinned wallet image ${devtoolImage}`);
+      commandText("docker", ["pull", "--platform", "linux/amd64", devtoolImage], { timeoutMs: 1_800_000 });
+    }
+    return devtoolImage;
+  }
   ensureGitSource(z3Source, "https://github.com/ZcashFoundation/z3.git", z3Commit);
   ensureGitSource(walletSource, "https://github.com/zcash/zcash-devtool.git", walletCommit);
   const cachedWalletBinary = join(walletSource, "target", "release", "zcash-devtool");
@@ -321,7 +335,7 @@ async function prepareRuntime(walletBinary: string): Promise<BootstrapState> {
   if (existingOwner && existingOwner !== ownerMarker()) throw new Error(`Ownership marker mismatch at ${ownerPath}`);
   await writeAtomic(ownerPath, ownerMarker());
   const envFile = join(z3Runtime, ".env.regtest");
-  const desiredEnv = envFileContents();
+  const desiredEnv = devtoolMode === "image" ? packageEnvFileContents() : envFileContents();
   if (existsSync(envFile)) {
     const current = await readFile(envFile, "utf8");
     if (current !== desiredEnv) {
@@ -332,7 +346,7 @@ async function prepareRuntime(walletBinary: string): Promise<BootstrapState> {
   } else {
     await writeAtomic(envFile, desiredEnv);
   }
-  const activationHeights = join(root, "config", "regtest-activation-heights.toml");
+  const activationHeights = join(packageRoot, "config", "regtest-activation-heights.toml");
   const senderWallet = join(runtimeRoot, "wallets", "sender");
   const senderIdentity = join(runtimeRoot, "wallets", "sender.age");
   await mkdir(join(runtimeRoot, "wallets"), { recursive: true, mode: 0o700 });
@@ -361,9 +375,48 @@ async function prepareRuntime(walletBinary: string): Promise<BootstrapState> {
   return state;
 }
 
+function packageEnvFileContents(): string {
+  return [
+    `COMPOSE_PROJECT_NAME=${composeProject}`,
+    "ZEBRA_MINING__MINER_ADDRESS=" + defaultMinerAddress,
+    "",
+  ].join("\n");
+}
+
+async function preparePackageAssets(): Promise<void> {
+  await mkdir(join(z3Runtime, "config"), { recursive: true, mode: 0o700 });
+  await writeAtomic(join(z3Runtime, "docker-compose.yml"), await readFile(join(packageRoot, "docker", "compose.yml"), "utf8"));
+  for (const file of ["zebra.toml", "zaino.toml"]) {
+    await writeAtomic(join(z3Runtime, "config", file), await readFile(join(packageRoot, "docker", "config", file), "utf8"), 0o600);
+  }
+}
+
+async function assertOrCreateRuntimeOwner(): Promise<void> {
+  await mkdir(runtimeRoot, { recursive: true, mode: 0o700 });
+  const marker = ownerMarker();
+  if (existsSync(ownerPath)) {
+    if (await readFile(ownerPath, "utf8") !== marker) throw new Error(`Ownership marker mismatch at ${ownerPath}; refusing to modify runtime assets or pull images.`);
+    return;
+  }
+  const existing = await import("node:fs/promises").then((fs) => fs.readdir(runtimeRoot));
+  if (existing.length) throw new Error(`Runtime directory ${runtimeRoot} is non-empty and has no Nivyr ownership marker; refusing to overwrite it.`);
+  await writeAtomic(ownerPath, marker);
+}
+
 function serviceContainers(): string[] {
   return commandText("docker", ["ps", "-q", "--filter", `label=com.docker.compose.project=${composeProject}`])
     .split(/\s+/).filter(Boolean);
+}
+
+function assertComposeOwnership(): void {
+  const ids = commandText("docker", ["ps", "-aq", "--filter", `label=com.docker.compose.project=${composeProject}`]).trim().split(/\s+/).filter(Boolean);
+  const expected = resolve(z3Runtime);
+  for (const id of ids) {
+    const workingDir = commandText("docker", ["inspect", id, "--format", '{{ index .Config.Labels "com.docker.compose.project.working_dir" }}']).trim();
+    if (resolve(workingDir || ".") !== expected) {
+      throw new Error(`Compose project ${composeProject} already has container ${id} owned from ${workingDir || "an unknown directory"}; refusing to control it.`);
+    }
+  }
 }
 
 function portInUse(port: number): Promise<boolean> {
@@ -377,8 +430,9 @@ function portInUse(port: number): Promise<boolean> {
 }
 
 async function checkPorts(): Promise<void> {
+  if (!/^[a-z0-9][a-z0-9_-]{0,50}$/.test(composeProject)) throw new Error("NIVYR_COMPOSE_PROJECT must contain 1-51 lowercase letters, digits, underscores, or hyphens and start with a letter or digit.");
   const owned = serviceContainers().length > 0;
-  if (owned) return;
+  if (owned) { assertComposeOwnership(); return; }
   const conflicts: number[] = [];
   for (const port of [ports.zebraRpc, ports.zebraHealth, ports.zainoGrpc, ports.zainoJsonRpc, ports.zalletRpc, ports.router]) {
     if (await portInUse(port)) conflicts.push(port);
@@ -502,18 +556,16 @@ async function ensureWallet(state: BootstrapState): Promise<string> {
     await mkdir(state.senderWallet, { recursive: true, mode: 0o700 });
     await chmod(state.senderWallet, 0o700);
     log("Creating a new disposable regtest sender wallet");
-    commandText(state.devtoolPath, [
-      "wallet", "-w", state.senderWallet, "init",
+    walletCommand(state, [
+      "init",
       "--name", "NivyrSender",
       "--identity", state.senderIdentity,
       "--network", "regtest",
       "--activation-heights", state.activationHeights,
-      "--server", `127.0.0.1:${ports.zainoGrpc}`,
+      "--server", `${devtoolMode === "image" ? "host.docker.internal" : "127.0.0.1"}:${ports.zainoGrpc}`,
     ], { input: "\n", timeoutMs: 120_000 });
   }
-  const addressOutput = commandText(state.devtoolPath, [
-    "wallet", "-w", state.senderWallet, "list-addresses", "--receiver", "transparent",
-  ]);
+  const addressOutput = walletCommand(state, ["list-addresses", "--receiver", "transparent"]);
   const addresses = [...addressOutput.matchAll(/^Receiver\(transparent\):\s*(\S+)\s*$/gm)].map((match) => match[1]);
   if (addresses.length !== 1) {
     throw new Error(`Expected exactly one sender transparent receiver from pinned zcash-devtool, found ${addresses.length}`);
@@ -526,11 +578,20 @@ async function ensureWallet(state: BootstrapState): Promise<string> {
   return addresses[0];
 }
 
-function walletCommand(state: BootstrapState, args: readonly string[], input?: string): string {
-  return commandText(state.devtoolPath, ["wallet", "-w", state.senderWallet, ...args], {
-    input,
-    timeoutMs: 300_000,
-  });
+function walletCommand(state: BootstrapState, args: readonly string[], options: { input?: string; timeoutMs?: number } = {}): string {
+  const fullArgs = ["wallet", "-w", state.senderWallet, ...args];
+  if (devtoolMode === "image") {
+    const uid = typeof process.getuid === "function" ? process.getuid() : 10001;
+    const gid = typeof process.getgid === "function" ? process.getgid() : 10001;
+    const mapped = fullArgs.map((arg) => arg === state.activationHeights ? "/nivyr-package/regtest-activation-heights.toml"
+      : arg.startsWith(`${runtimeRoot}/`) ? `/nivyr/${arg.slice(runtimeRoot.length + 1)}`
+        : arg.startsWith("127.0.0.1:") ? arg.replace("127.0.0.1:", "host.docker.internal:") : arg);
+    return commandText("docker", ["run", "--rm", "--platform", "linux/amd64", "--user", `${uid}:${gid}`, "--add-host", "host.docker.internal:host-gateway",
+      "--mount", `type=bind,source=${runtimeRoot},target=/nivyr`,
+      "--mount", `type=bind,source=${state.activationHeights},target=/nivyr-package/regtest-activation-heights.toml,readonly`,
+      state.devtoolPath, ...mapped], { input: options.input, timeoutMs: options.timeoutMs ?? 300_000 });
+  }
+  return commandText(state.devtoolPath, fullArgs, { input: options.input, timeoutMs: options.timeoutMs ?? 300_000 });
 }
 
 function walletBalance(state: BootstrapState): WalletBalance {
@@ -689,11 +750,13 @@ async function up(): Promise<void> {
   ensurePrerequisites();
   process.umask(0o077);
   await checkPorts();
+  await assertOrCreateRuntimeOwner();
   await mkdir(runtimeRoot, { recursive: true, mode: 0o700 });
+  if (devtoolMode === "image") await preparePackageAssets();
   const walletBinary = await ensurePinnedSources();
   let state = await prepareRuntime(walletBinary);
   log(`Preparing isolated Compose project ${composeProject}`);
-  commandText(join(z3Runtime, "scripts", "regtest-init.sh"), ["--prepare-only"], { cwd: z3Runtime });
+  if (devtoolMode === "source") commandText(join(z3Runtime, "scripts", "regtest-init.sh"), ["--prepare-only"], { cwd: z3Runtime });
   compose(["--profile", "indexer", "up", "-d", "zebra"]);
   const rpc = zebraRpc();
   let height = await waitForZebra(rpc);
@@ -746,6 +809,7 @@ async function down(): Promise<void> {
     log("Nivyr Compose environment is absent; no stack to stop");
     return;
   }
+  assertComposeOwnership();
   log(`Stopping only Compose project ${composeProject}; volumes and sender wallet are preserved`);
   compose(["--profile", "*", "down"]);
 }

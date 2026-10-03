@@ -1,7 +1,8 @@
 import { mkdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { parseDetectedPayment, parseTxid, parseWallet, parseWalletScanHeight, zecToZatoshi } from "./parse.js";
-import { run } from "./process.js";
+import { LocalDevtoolBackend } from "./process.js";
 import { ZebraRpc } from "./rpc.js";
 import type {
   CreateWalletOptions,
@@ -36,10 +37,12 @@ export class Nivyr {
   private readonly rpc: ZebraRpc;
   private readonly indexerRpc: ZebraRpc;
   private readonly scanHeights = new Map<string, number>();
-  private readonly options: Required<Omit<NivyrOptions, "devtoolPath" | "walletRoot" | "activationHeightsPath">> &
-    Pick<NivyrOptions, "devtoolPath" | "walletRoot" | "activationHeightsPath">;
+  private readonly options: Required<Omit<NivyrOptions, "walletBackend">> & Pick<NivyrOptions, "walletBackend">;
+  private readonly walletBackend: import("./process.js").WalletBackend;
 
   constructor(options: NivyrOptions) {
+    const packageRoot = resolve(fileURLToPath(new URL("../../../../", import.meta.url)));
+    const runtimeRoot = resolve(process.env.NIVYR_RUNTIME_ROOT ?? join(process.cwd(), ".nivyr"));
     this.options = {
       lightwalletdAddress: "localhost:28137",
       zebraRpcUrl: "http://127.0.0.1:29232",
@@ -49,10 +52,11 @@ export class Nivyr {
       pollIntervalMs: 100,
       timeoutMs: 20_000,
       ...options,
-      devtoolPath: resolve(options.devtoolPath),
-      walletRoot: resolve(options.walletRoot),
-      activationHeightsPath: resolve(options.activationHeightsPath),
+      devtoolPath: resolve(options.devtoolPath ?? process.env.NIVYR_DEVTOOL ?? join(runtimeRoot, "bin", "zcash-devtool")),
+      walletRoot: resolve(options.walletRoot ?? join(runtimeRoot, "wallets")),
+      activationHeightsPath: resolve(options.activationHeightsPath ?? join(packageRoot, "config", "regtest-activation-heights.toml")),
     };
+    this.walletBackend = options.walletBackend ?? new LocalDevtoolBackend(this.options.devtoolPath);
     this.rpc = new ZebraRpc(
       this.options.zebraRpcUrl,
       this.options.zebraRpcUser,
@@ -62,7 +66,7 @@ export class Nivyr {
   }
 
   private async devtool(args: readonly string[]): Promise<string> {
-    const result = await run(this.options.devtoolPath, args);
+    const result = await this.walletBackend.execute(args);
     return result.stdout;
   }
 
@@ -141,7 +145,7 @@ export class Nivyr {
 
   async sync(wallet: WalletRef): Promise<void> {
     const conservativeScanHeight = await this.indexedHeight();
-    const result = await run(this.options.devtoolPath, this.walletArgs(wallet, [
+    const result = await this.walletBackend.execute(this.walletArgs(wallet, [
       "sync", "--server", this.options.lightwalletdAddress,
     ]));
     const scanHeight = parseWalletScanHeight(`${result.stdout}\n${result.stderr}`);
