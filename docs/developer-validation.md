@@ -1,6 +1,6 @@
 # Nivyr Developer Validation
 
-Use this guide on a machine that is genuinely separate from the maintainer host. Do not reuse another machine's `.cache` directory or wallet. This is a preparation form; no interviews or results are recorded here.
+Use this guide to collect real developer feedback and reproducible package test reports. Do not reuse another machine's `.nivyr/` wallet/runtime. No interviews or third-party installs are recorded here as of 2026-10-09.
 
 ## Developer conversations
 
@@ -10,44 +10,40 @@ No developer interviews have been conducted. These entries remain pending and ar
 - Developer 2: PENDING — project, current payment/memo tests, most painful step, reaction, adoption intent and notes.
 - Developer 3: PENDING — project, current payment/memo tests, most painful step, reaction, adoption intent and notes.
 
-## Try the clean checkout
+## Try the public package
 
-Prerequisites: supported Node.js (`^22.12.0 || ^24.0.0 || >=26.0.0`), npm, Docker Engine with Compose v2.24.4+, Git, curl, OpenSSL, tar, stable Rust/Cargo, internet access for pinned sources, crates.io and images, and the documented loopback ports free. The first Rust wallet build took about 24 minutes on the maintainer host; another machine may take longer.
+For ordinary developer validation, use the released npm package. Do not clone Nivyr or install Rust/Cargo for the normal image-backed path. Prerequisites: supported Node.js (`^22.12.0 || ^24.0.0 || >=26.0.0`), npm, Docker Engine/Desktop with Compose v2.24.4+, registry access, and the documented loopback ports free. At least 8 GiB free disk is recommended.
 
 ```sh
-git clone https://github.com/Webghost01-NG/nivyr.git
-cd nivyr
-git switch spike/zcash-lifecycle
-npm ci
-npm run nivyr:up
-npm run test:integration
-npm run nivyr:down
+npm install -D @webghost01/nivyr
+npx nivyr doctor
+npx nivyr up
+npx nivyr test
+npx nivyr down
 ```
 
-Use each command separately so that a failure is visible. Do not continue to integration after `nivyr:up` fails. Keep `.cache/` after transient download/build failures and retry `npm run nivyr:up`; do not delete it unless maintainers request a targeted reset. The runtime is local regtest and contains no real ZEC.
+This starts local regtest infrastructure and uses disposable local funds, not mainnet/testnet ZEC. `down` stops the Nivyr-owned Compose project and preserves `.nivyr/` data. Never include that directory in a report.
 
-## Inspect the example
+## Optional source contribution path
 
-Read `tests/integration/lifecycle.integration.ts` and `examples/merchant/`. Identify which observer establishes each point: Zebra broadcast/mining, Zaino indexed height, wallet transaction list after explicit sync, and decrypted memo after enhancement. Verify that the test uses the merchant HTTP API and does not inspect its internal state.
+To contribute to Nivyr itself, clone the canonical `main` branch and use the repository development commands in the root README. The source-checkout lifecycle materials under `docs/bootstrap-plan.md` and `docs/spike/` describe the earlier maintainer source-build experiment; they are not the public npm quickstart.
 
-Optional: try one observation in an existing application test. Keep app-specific assertions in that application's test runner; report lifecycle friction rather than adding a generic adapter to Nivyr.
+Keep app-specific assertions in the consuming application's test runner and use its public API. Nivyr's `PaymentAppAdapter` reference scenarios do not establish support for a third-party application.
 
 ## Record results
 
 - Tester / project:
 - Date and run ID:
-- OS release / architecture / RAM:
+- Package source/version:
+- OS release / architecture:
 - Node / npm:
 - Docker / Compose:
-- Rust / Cargo:
-- Clean or cached state:
-- Time to `npm ci`:
+- Image cache cold or warm:
 - Time to READY:
-- Time for integration:
-- Did all three real lifecycle cases pass?
+- Commands and each pass/fail result (`doctor`, `up`, `test`, `down`, import):
+- Time for lifecycle test (if measured):
 - Failure output and step (redact local secrets/identity data):
 - Where was documentation insufficient?
-- Was maintainer help needed?
 - Were the lifecycle distinctions understandable?
 - Would you use it in CI? Why?
 - What did you expect Nivyr to provide that it does not?

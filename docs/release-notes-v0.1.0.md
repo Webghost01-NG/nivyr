@@ -11,7 +11,7 @@ Nivyr is integration-testing infrastructure for Zcash payment applications. It h
 
 ## Verified environment
 
-External npm-tarball installation, startup, lifecycle/security tests, library import, and scoped shutdown passed on Fedora Linux 44 x86_64 with Docker. Twenty final-package lifecycle/security runs passed on that host (122.421s minimum, 131.516s median, 143.010s p95, 152.526s maximum). The wallet runtime is pinned to `ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9` (`linux/amd64`).
+External npm-tarball acceptance and fresh public npm registry installation, startup, lifecycle/security tests, library import, and scoped shutdown passed on Fedora Linux 44 x86_64 with Docker. Twenty final-package lifecycle/security runs passed on that host (122.421s minimum, 131.516s median, 143.010s p95, 152.526s maximum). The wallet runtime is pinned to `ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9` (`linux/amd64`).
 
 ## Install
 
@@ -25,4 +25,4 @@ npx nivyr down
 
 ## Known limitations
 
-Only Fedora Linux 44 x86_64 is verified end to end. Ubuntu, macOS, ARM64, Apple Silicon, Windows/WSL, and other hosts are not verified. The two application patterns are reference fixtures, not independent third-party integrations. Clean-image cold-start timing, view-only merchant behavior, reorg handling, and external developer validation remain unverified.
+Only Fedora Linux 44 x86_64 has reproducible end-to-end evidence. The owner reported later successful Nivyr testing on Ubuntu and macOS on 2026-10-09, but no exact host details or logs are retained, so those are not verified compatibility claims. ARM64, Apple Silicon, Windows/WSL, and other hosts remain unverified. The two application patterns are reference fixtures, not independent third-party integrations. Clean-image cold-start timing, view-only merchant behavior, reorg handling, and external developer validation remain unverified.

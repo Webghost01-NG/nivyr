@@ -29,7 +29,7 @@ Vitest remains the test runner. `nivyr test` is intended to verify Nivyr's packa
 
 ## Forged-Txid Demo
 
-A valid mined txid alone does not prove that a merchant received the expected payment. In the packaged regtest, a reference merchant that trusts a customer-supplied mined txid incorrectly settled ORDER-42 for an unrelated destination and wrong memo. The corrected fixture remained unpaid until its wallet observed the expected destination, amount, and memo. See the [sanitized evidence](docs/evidence/packaged-forged-txid.json); this demonstrates the fixture, not any third-party merchant.
+A valid mined txid alone does not prove that a merchant received the expected payment. In the packaged regtest, a reference merchant that trusts a customer-supplied mined txid incorrectly settled ORDER-42 for an unrelated destination and wrong memo. The corrected fixture remained unpaid until its wallet observed the expected destination, amount, and memo. See the [sanitized evidence](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/packaged-forged-txid.json); this demonstrates the fixture, not any third-party merchant.
 
 ## Lifecycle Model
 
@@ -39,7 +39,7 @@ Nivyr's packaged external-project lifecycle uses real Ironwood-era transactions:
 broadcast → mined → indexed → merchant wallet unscanned → sync → detected → enhance → memo
 ```
 
-The packed npm artifact ran this lifecycle from a project with no Nivyr repository checkout. See the [external package acceptance record](docs/evidence/package-acceptance.json), [lifecycle evidence](docs/evidence/packaged-lifecycle-20261003.json), [architecture](docs/architecture.md), and [host evidence](docs/support-matrix.md).
+The packed npm artifact ran this lifecycle from a project with no Nivyr repository checkout. See the [external package acceptance record](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/package-acceptance.json), [public registry acceptance](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/public-npm-release.json), [lifecycle evidence](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/packaged-lifecycle-20261003.json), [architecture](https://github.com/Webghost01-NG/nivyr/blob/main/docs/architecture.md), and [host evidence](https://github.com/Webghost01-NG/nivyr/blob/main/docs/support-matrix.md).
 
 ## Install
 
@@ -47,12 +47,6 @@ Install the package into an ordinary project:
 
 ```sh
 npm install -D @webghost01/nivyr
-```
-
-For direct tarball installs, including package acceptance tests:
-
-```sh
-npm install -D /path/to/webghost01-nivyr-0.1.0.tgz
 ```
 
 ## Quickstart
@@ -96,7 +90,7 @@ The package exports `createNivyr`, `Nivyr`, lifecycle types, payment adapter typ
 
 ## Application Adapter
 
-`PaymentAppAdapter` is a small HTTP/API-facing contract with `createInvoice` and `getInvoice`. It does not authorize database access. The packaged scenario runs against memo-based and per-invoice-destination reference API patterns; integration with two independent application codebases remains unproven. See [adapter evidence](docs/evidence/adapter-reuse.json).
+`PaymentAppAdapter` is a small HTTP/API-facing contract with `createInvoice` and `getInvoice`. It does not authorize database access. The packaged scenario runs against memo-based and per-invoice-destination reference API patterns; integration with two independent application codebases remains unproven. See [adapter evidence](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/adapter-reuse.json).
 
 ## Architecture
 
@@ -104,23 +98,24 @@ Zebra provides chain state; Zaino provides indexing and wallet sync transport; t
 
 ## Reproducibility
 
-Verified pins: Z3 `e84ce9fd8e864ff0b2a8a62f6ce14392145db0fb`, Zebra `6.2.3`, Zaino `0.10.1-no-tls`, zcash-devtool source `5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8`; NU6.3 activates at regtest height 2. The packaged wallet image is `ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9` (`linux/amd64`). Zebra and Zaino image digests are recorded in [stack proof](docs/evidence/stack-proof.json).
+Verified pins: Z3 `e84ce9fd8e864ff0b2a8a62f6ce14392145db0fb`, Zebra `6.2.3`, Zaino `0.10.1-no-tls`, zcash-devtool source `5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8`; NU6.3 activates at regtest height 2. The packaged wallet image is `ghcr.io/webghost01-ng/nivyr-zcash-devtool@sha256:42d7cd27f6c133543f90bfa6558598c2bc4a0da42a3ff17f1ad1476f2246edb9` (`linux/amd64`). Zebra and Zaino image digests are recorded in [stack proof](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/stack-proof.json).
 
 Package runtimes use `.nivyr/` in the consumer project with an ownership marker, private wallet storage, and project-scoped Docker resources. `down` stops only that Nivyr Compose project and preserves its volumes and sender wallet.
 
 ## Evidence
 
-- [Existing real lifecycle evidence](docs/evidence/runs/repeatability.json)
-- [Ironwood pool proof](docs/evidence/pool-proof.txt)
-- [Sanitized bootstrap evidence](docs/evidence/bootstrap/)
-- [Host support matrix](docs/support-matrix.md)
-- [External tester instructions](docs/third-party-test.md)
-- [Package cold-start timing](docs/evidence/cold-start.json): image cache was warm, so no cold-pull claim is made.
-- [Packaged reliability](docs/evidence/reliability.json): 20/20 passes on the verified Fedora host.
+- [Public npm package acceptance](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/public-npm-release.json)
+- [Packaged lifecycle evidence](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/packaged-lifecycle-20261003.json)
+- [Ironwood transaction proof](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/pool-proof.txt)
+- [Sanitized bootstrap evidence](https://github.com/Webghost01-NG/nivyr/tree/main/docs/evidence/bootstrap)
+- [Host support matrix](https://github.com/Webghost01-NG/nivyr/blob/main/docs/support-matrix.md)
+- [Public tester instructions](https://github.com/Webghost01-NG/nivyr/blob/main/docs/third-party-test.md)
+- [Package cold-start record](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/cold-start.json): image cache was warm, so no cold-pull claim is made.
+- [Packaged reliability](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/reliability.json): 20/20 passes on the verified Fedora host.
 
 ## Supported Platforms
 
-Fedora Linux 44 x86_64 is verified for external tarball install, doctor, up, test, and down. macOS Node gating, Ubuntu source-build network failure, and secondary Fedora missing Docker CLI remain distinct historical reports; none has a new package-mode retest. The wallet image is linux/amd64; ARM64 is unverified.
+Fedora Linux 44 x86_64 is reproducibly verified for public npm install, doctor, up, test, down, and library import. The project owner reports successful Nivyr testing on Ubuntu and macOS on October 9, 2026, but the exact host versions, architectures, commands, and logs are not retained; those results are owner-reported and not independently reproducible from this repository. Earlier Ubuntu source-build and macOS Node-gate failures are preserved as historical attempts in the [support matrix](https://github.com/Webghost01-NG/nivyr/blob/main/docs/support-matrix.md), not treated as the current report. The wallet image is linux/amd64; ARM64, Apple Silicon, Windows, and WSL remain unverified.
 
 ## Known Limitations
 
@@ -135,7 +130,7 @@ Nivyr sits above Zcash infrastructure instead of implementing consensus, transac
 
 ## Validation
 
-No third-party interviews or installations are recorded. Use [the validation form](docs/validation.md); do not convert maintainer testing into traction claims.
+No third-party interviews or installations are recorded. Use [the validation form](https://github.com/Webghost01-NG/nivyr/blob/main/docs/validation.md); do not convert maintainer testing into traction claims.
 
 ## Roadmap
 
@@ -143,7 +138,7 @@ Local npm package → reusable payment scenarios → CI support → hosted ephem
 
 ## Colosseum
 
-Initial market: Zcash payment developers. A practical GTM path is npm discovery and GitHub examples, posts in the Zcash Forum and ecosystem developer communities, direct integration outreach to payment and wallet teams, and relevant grants/ecosystem programs; make the first install and lifecycle example easy to reproduce. Current criteria/evidence mapping is in [docs/colosseum-criteria.md](docs/colosseum-criteria.md). No demand or traction is claimed.
+Initial market: Zcash payment developers. A practical GTM path is npm discovery and GitHub examples, posts in the Zcash Forum and ecosystem developer communities, direct integration outreach to payment and wallet teams, and relevant grants/ecosystem programs; make the first install and lifecycle example easy to reproduce. See the [Colosseum readiness notes](https://github.com/Webghost01-NG/nivyr/blob/main/docs/colosseum-readiness-2026-10-09.md) and [criteria/evidence map](https://github.com/Webghost01-NG/nivyr/blob/main/docs/colosseum-criteria.md). No demand or traction is claimed.
 
 ## Development
 
@@ -154,4 +149,4 @@ npm test
 npm run build
 ```
 
-The source-checkout lifecycle scripts and preserved-state evidence are described in [NEXT.md](NEXT.md) and [bootstrap plan](docs/bootstrap-plan.md). Keep wallet state and secrets under ignored local runtime paths.
+The source-checkout lifecycle scripts and preserved-state evidence are described in [NEXT.md](https://github.com/Webghost01-NG/nivyr/blob/main/NEXT.md) and the [bootstrap plan](https://github.com/Webghost01-NG/nivyr/blob/main/docs/bootstrap-plan.md). Keep wallet state and secrets under ignored local runtime paths.

@@ -1,13 +1,13 @@
 # Current Limitations
 
 - `npm run nivyr:up` bootstraps the pinned local Z3 regtest and funds the sender without a faucet; `npm run test:integration` expects that managed runtime to have reached READY. The integration runner does not start it implicitly.
-- Fedora Linux 44 x86_64 passed the external tarball sequence `doctor → up → test → down`. Ubuntu and macOS still have only their earlier source-mode/preflight failures; no package-mode rerun has been made there. See [support matrix](support-matrix.md).
+- Fedora Linux 44 x86_64 has reproducible public-registry evidence for install, `doctor → up → test → down`, and API import. The owner reports later successful Ubuntu and macOS testing, but the exact host metadata and logs were not retained; those are not reproducible compatibility claims. Historical source-mode/preflight failures remain separately recorded. See [support matrix](support-matrix.md).
 - Z3's August 2026 pin defaults to Zaino 0.6, which fails wallet Ironwood subtree requests. The experiment used Zaino 0.10.1 with a digest override. A clean install must apply that override.
 - Zebra exposes wallet transaction details in a JSON shape used by the TypeScript parser. Other Zebra versions may differ.
 - Memo plaintext was available only after `zcash-devtool wallet enhance`. Nivyr coordinates this; wallet code decrypts the memo.
 - Wallet lifecycle code parses human-oriented `zcash-devtool` text for address, send txid, sync progress, payment amount/pool, and decrypted memo. Parser errors now avoid echoing command output, but correctness still depends on pinned CLI text fields. `list-tx --json` only supplies txid and mined height, not amount/pool/memo. A future machine-readable upstream response would reduce this fragility.
-- Ubuntu's historical Cargo crates.io timeout is separate from the now-verified image-mode package path; an independent Ubuntu package retest remains pending.
-- Node 22.14.0 was not run through the full project on the macOS tester's machine. The previous 22.23.1 minimum had no code/dependency basis found; final Node support matches Vitest's declared engine range.
+- Ubuntu's historical Cargo crates.io timeout is separate from the image-mode package path. The later Ubuntu success report lacks retained environment details and logs.
+- The earlier macOS run with Node 22.14.0 stopped at the former Node gate before runtime startup. The owner later reported successful macOS testing, but the Node/Docker/Compose versions and run log are not available. The current Node support matches Vitest's declared engine range.
 - Scan-height knowledge is scoped to a Nivyr instance and a wallet it explicitly syncs. Reopening an already-used wallet in a new Nivyr instance does not reconstruct historical scan progress.
 - Tests use regtest-only default RPC credentials (`zebra`/`zebra`). Never point this package at a public or production wallet/node.
 - The reference app is intentionally tiny and in-memory. It demonstrates external application assertions, not production merchant architecture.

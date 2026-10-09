@@ -28,4 +28,4 @@ Verified host: Fedora Linux 44 x86_64, Node.js 22.23.1, Docker 29.8.1, Compose 5
 
 ## Known limitations
 
-Only Fedora Linux 44 x86_64 is verified end to end. Ubuntu, macOS, secondary Fedora, ARM64, Apple Silicon, Windows/WSL, cold-image timing, independent third-party applications, developer validation, view-only merchant wallets, and reorg handling are not verified. Zallet was reviewed from release documentation and image metadata; no live RPC migration test was performed.
+Only Fedora Linux 44 x86_64 has reproducible end-to-end evidence. On 2026-10-09, the project owner reported successful Nivyr testing on Ubuntu and macOS; exact host versions, architectures, commands, outcomes, and logs were not retained, so these remain owner-reported rather than verified compatibility claims. Secondary Fedora, ARM64, Apple Silicon, Windows/WSL, cold-image timing, independent third-party applications, developer validation, view-only merchant wallets, and reorg handling are not verified. Zallet was reviewed from release documentation and image metadata; no live RPC migration test was performed.

@@ -10,7 +10,7 @@ Fedora Linux 44, x86_64, 4 CPUs, 7.6 GiB RAM; Docker 29.8.1, Compose 5.5.1; Node
 
 ## Bootstrap verification
 
-**PASS on this host.** A disposable fresh runtime started at height 0 under its own Compose project with a new wallet, mined 100 sender-controlled rewards plus 100 maturity blocks, and shielded the mature funds without a faucet or manual intervention. The resulting version-6 transaction had 4 Ironwood actions, no Orchard/Sapling components, and confirmed at height 203; after sync the wallet had 62,499,480,000 zatoshi spendable in Ironwood. `npm run nivyr:up` and the real integration test passed on the isolated runtime; preserved-state restart reused the wallet and passed integration again. Details and sanitized evidence are in [bootstrap-plan.md](../bootstrap-plan.md) and [bootstrap evidence](../evidence/bootstrap/). Second-machine validation remains **UNVERIFIED**.
+**PASS on this host (recorded 2026-10-01).** A disposable fresh runtime started at height 0 under its own Compose project with a new wallet, mined 100 sender-controlled rewards plus 100 maturity blocks, and shielded the mature funds without a faucet or manual intervention. The resulting version-6 transaction had 4 Ironwood actions, no Orchard/Sapling components, and confirmed at height 203; after sync the wallet had 62,499,480,000 zatoshi spendable in Ironwood. `npm run nivyr:up` and the real integration test passed on the isolated runtime; preserved-state restart reused the wallet and passed integration again. Details and sanitized evidence are in [bootstrap-plan.md](../bootstrap-plan.md) and [bootstrap evidence](../evidence/bootstrap/). At that time, second-machine validation was **UNVERIFIED**; a later Ubuntu/macOS owner report is recorded in the current [support matrix](../support-matrix.md) without promoting it to reproducible verification.
 
 ## Backend
 
@@ -62,7 +62,7 @@ Three of three post-fix integration runs passed real v6 Ironwood transactions, p
 
 ## Second machine
 
-**INDEPENDENT RETEST PENDING; current attempts BLOCKED.** Ubuntu PC #2 (user report) completed `npm ci` and pinned source fetch, then Cargo timed out fetching the `minicbor` crates.io dependency after 30s; READY was not reached. macOS PC #3 (user report) used Node 22.14.0/npm 10.9.2; `npm ci` warned EBADENGINE and bootstrap stopped at the then-current `>=22.23.1` gate before infrastructure work. The latter gate has now been aligned with Vitest's declared range, and Cargo has a longer timeout/retry policy, but neither machine has rerun. See [support matrix](../support-matrix.md).
+**Historical cross-machine attempts (2026-10-03):** Ubuntu PC #2 fetched the pinned source but Cargo timed out on the `minicbor` crates.io dependency before READY. macOS PC #3, using Node 22.14.0/npm 10.9.2, stopped at the then-current `>=22.23.1` gate before infrastructure startup. On 2026-10-09 the project owner reported later successful Nivyr testing on both platforms. No detailed logs or current environment metadata were retained, so the latest reports remain unverified; they are recorded separately in [the support matrix](../support-matrix.md).
 
 ## What Nivyr would actually need to own
 
