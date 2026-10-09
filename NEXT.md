@@ -1,35 +1,46 @@
-# Nivyr Handoff
+# Nivyr Handoff — v0.1.0
 
-## Current state
+The canonical product is on `main`, tagged `v0.1.0`, and published as [`@webghost01/nivyr`](https://www.npmjs.com/package/@webghost01/nivyr). The production developer docs are at <https://nivyr-docs.vercel.app>.
 
-- Repository root, branch `spike/zcash-lifecycle`.
-- Existing lifecycle controls and reference merchant remain intact.
-- `npm run nivyr:up`, `npm run test:integration`, and `npm run nivyr:down` now orchestrate a pinned local Z3 regtest. Fresh funding uses a wallet-owned transparent P2PKH coinbase receiver, 100-block maturity, then a real Ironwood shield.
-- Clean-room Gate 1 and an isolated automated bootstrap reached positive Ironwood spendable balance. Fresh integration passed; preserved-state restart reused the wallet. Second-machine validation remains **UNVERIFIED**.
+## Public user flow
 
-## Pinned runtime
+```sh
+npm install -D @webghost01/nivyr
+npx nivyr doctor
+npx nivyr up
+npx nivyr test
+npx nivyr down
+```
 
-- Z3 `e84ce9fd8e864ff0b2a8a62f6ce14392145db0fb`
-- Zebra `6.2.3`, digest in `docs/bootstrap-plan.md`
-- Zaino `0.10.1-no-tls`, digest in `docs/bootstrap-plan.md`
-- zcash-devtool `5a26ee854e634a4e88d1d79dab13f8fbb1eac6b8`
-- NU6.3 activates at regtest height 2.
+Normal package mode uses a digest-pinned `linux/amd64` wallet image. It does not require a Nivyr clone, Rust, or Cargo. Runtime state is consumer-project-owned under `.nivyr/`; `down` stops only Nivyr's project resources and preserves volumes/wallet data.
 
-## Reproduce
+## Evidence status
+
+- Reproducible public-registry package acceptance is recorded on Fedora Linux 44 x86_64, including CLI, API import, lifecycle, forged-txid regression, and shutdown.
+- The packaged warm-image reliability run passed 20/20 on that Fedora host.
+- The owner reports successful Ubuntu and macOS tests on 2026-10-09. No OS versions, architectures, Node/Docker/Compose versions, command-by-command results, or logs are retained; those results remain owner-reported and unverified.
+- Cold image pull timing, independent app integrations, view-only wallet behavior, and reorg handling are not verified.
+
+See [support matrix](docs/support-matrix.md), [public npm evidence](docs/evidence/public-npm-release.json), and [Colosseum readiness](docs/colosseum-readiness-2026-10-09.md).
+
+## Maintainer checks
 
 ```sh
 npm ci
-npm run nivyr:up
-npm run test:integration
-npm run nivyr:down
+npm run typecheck
+npm test
+npm run build
+npm pack --dry-run
+npm run build --prefix website
 ```
 
-`down` preserves Nivyr volumes and wallet identity. See [README](README.md), [bootstrap plan](docs/bootstrap-plan.md), and [spike report](docs/spike/spike-report.md). Never remove unrelated containers/volumes.
+For runtime-affecting changes, use the external package acceptance workflow and retain sanitized evidence. Do not republish or move `v0.1.0`; any artifact correction requires a reviewed patch release.
 
-## Remaining work
+The historical source-build experiment and implementation details are preserved in [bootstrap plan](docs/bootstrap-plan.md) and [spike report](docs/spike/spike-report.md). Those notes do not describe the normal published-package path.
 
-1. Perform clean-checkout validation on a separate machine; status must remain UNVERIFIED until done.
-2. Inspect/replace the remaining human-oriented `zcash-devtool` text parsing where a supported structured surface exists.
-3. Consider port configurability only if a real host conflict requires it.
+## Colosseum owner actions
 
-Do not redo the real lifecycle or competitor research. No faucet is needed for local regtest funding.
+- Record/upload the 2–3 minute presentation and up-to-3-minute product demo; add actual URLs to the submission.
+- Provide sanitized Ubuntu/macOS run details if those results should support compatibility claims.
+- Enter accurate founder/team background, location, development history, and any real demand evidence in the portal.
+- Keep market sizing and traction claims evidence-based; none is currently recorded.

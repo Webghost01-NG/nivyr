@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "reportedAt": "2026-10-09",
+  "source": "Project owner statement received during final pre-submission work",
+  "platform": "macOS",
+  "status": "OWNER_REPORTED_SUCCESS_UNVERIFIED",
+  "reportedOutcome": "The owner reports that Nivyr was successfully tested on macOS.",
+  "evidenceAvailability": {
+    "reproducibleLogsRetained": false,
+    "detailedRunReportRetained": false
+  },
+  "unknowns": {
+    "macOSVersion": null,
+    "architecture": null,
+    "nodeVersion": null,
+    "npmVersion": null,
+    "dockerDesktopOrEngineVersion": null,
+    "composeVersion": null,
+    "packageSourceAndVersion": null,
+    "commandsAndIndividualOutcomes": null,
+    "imageCacheStateOrEmulation": null,
+    "timings": null
+  },
+  "claimLimit": "This records the existence and scope of the owner's report only. It is not a reproducible test log and does not establish platform compatibility."
+}

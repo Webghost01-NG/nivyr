@@ -14,8 +14,8 @@ The final packaged reliability campaign ran 20/20 successfully on this host. The
 
 | Host | Current evidence |
 | --- | --- |
-| Ubuntu | Historical source-build attempt failed during a crates.io request timeout. No packaged-path rerun is recorded. |
-| macOS | Historical run stopped at the earlier Node-version gate before runtime startup. Package-mode behavior is not verified. |
+| Ubuntu | The owner reports successful Nivyr testing on 2026-10-09. Exact OS release, architecture, Node/Docker/Compose versions, commands, per-command outcomes, and logs are not retained; report is not reproducibly verified. The historical Cargo source-build timeout remains recorded separately. See the [owner report](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/hosts/ubuntu/owner-report-20261009.json). |
+| macOS | The owner reports successful Nivyr testing on 2026-10-09. Exact macOS version, architecture, Node/Docker/Compose versions, commands, per-command outcomes, and logs are not retained; report is not reproducibly verified. The earlier Node-gate failure remains recorded separately. See the [owner report](https://github.com/Webghost01-NG/nivyr/blob/main/docs/evidence/hosts/macos/owner-report-20261009.json). |
 | Secondary Fedora machine | A previous report found the Docker CLI absent. No package-mode retest is recorded. |
 | ARM64 / Apple Silicon | Wallet image is linux/amd64. Native ARM64 support is not available or verified; intentional emulation is not claimed. |
 | Windows / WSL | Not tested. |

@@ -1,4 +1,6 @@
-# Nivyr Productization Migration Plan
+# Historical Nivyr Productization Migration Plan
+
+> This is a dated baseline and migration checklist captured on 2026-10-03 before the v0.1.0 package release. Its baseline findings describe the repository at that time, not the current product state. The package and runtime work was completed; see the current [release record](release-v0.1.0.md), [support matrix](support-matrix.md), and [submission-readiness report](colosseum-readiness-2026-10-09.md).
 
 ## Baseline findings (2026-10-03)
 

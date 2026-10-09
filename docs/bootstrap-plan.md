@@ -1,12 +1,14 @@
 # Nivyr Bootstrap Plan
 
+> **Historical maintainer/source-checkout notes.** This document records the earlier source-build implementation and its host requirements. It is not the current end-user quickstart. The public npm package uses a digest-pinned wallet image and its supported documented flow is `npm install -D @webghost01/nivyr`, then `npx nivyr doctor`, `up`, `test`, and `down`. Normal package mode does not require Rust or Cargo. See [public package instructions](third-party-test.md) and [current architecture](architecture.md).
+
 ## Goal
 
 Provide a reproducible local regtest lifecycle so a clean checkout can start pinned Z3, create a disposable sender wallet, generate its own mature funding, shield into Ironwood, run integration tests, and stop without touching other Docker projects.
 
 Implemented in `scripts/nivyr.ts` and `scripts/run-integration.ts`. The bootstrap is intentionally a single pinned Z3 backend, not a general infrastructure adapter.
 
-## Current Manual Flow
+## Historical Source-Checkout Flow
 
 The former manual steps are now orchestrated by `npm run nivyr:up`: acquire/verify pinned sources, generate an isolated ignored Z3 runtime, run Z3's prepare-only regtest initialization, start Zebra and Zaino, wait for semantic readiness and NU6.3, create/reuse wallet and age identity, configure Zebra's miner address, mine and mature local rewards, shield to Ironwood, and verify balance. `npm run test:integration` reads the generated private runtime state; `npm run nivyr:down` stops only the Nivyr Compose project and preserves data.
 
@@ -114,7 +116,7 @@ Implemented and exercised across the second run:
 
 The command reports the failed step and preserves runtime/wallet state. Cargo dependency failures now name crates.io, report the configured timeout/retries, and direct the user to retain `.cache` and retry. Existing pinned source and Cargo partial downloads/build output are reused. Source archive extraction uses a temporary sibling and publishes the destination only after a complete extraction, so a killed tar cannot leave a directory that blocks the next run. Other recovery steps: inspect `docker compose` logs from `.cache/runtime/nivyr-bootstrap/z3`, current Zebra/Zaino heights, and `.cache/runtime/nivyr-bootstrap/state.json` (never share the age identity or wallet files). Port collision checks fail before startup rather than killing the owner. Runtime config and ownership markers prevent an unexpected directory/project from being overwritten.
 
-Independent Ubuntu report: the source was fetched but Cargo failed a crates.io `minicbor` request after Cargo's observed 30-second default; no retry-from-that-machine result exists yet. Nivyr now selects sparse protocol, a 120-second HTTP low-speed threshold and six retries by default. The Cargo Book documents a 30-second default and configurable retries; this change is bounded and does not make an unreachable registry succeed. Independent macOS report: Node 22.14 was rejected by the former app-specific gate before infrastructure ran. The current minimum follows pinned Vitest's declared engine range; that Mac must still rerun, and Docker/Rust readiness there remains unknown.
+Historical owner reports from Ubuntu and macOS documented a source-mode crates.io timeout and an earlier Node gate rejection, respectively. On 2026-10-09 the project owner reported later successful Nivyr testing on both platforms. The latest runs' host versions, command outcomes, and logs were not retained, so neither the old failures nor the new successes are sufficient to claim reproducible package-mode support. See [the current support matrix](support-matrix.md) and the separate [Ubuntu](evidence/hosts/ubuntu/owner-report-20261009.json) and [macOS](evidence/hosts/macos/owner-report-20261009.json) report records.
 
 ## CLI Text Parsing Risk
 
@@ -147,4 +149,4 @@ npm run test:integration
 npm run nivyr:down
 ```
 
-It required no manual wallet funding, manual Zaino replacement, manually typed Z3 commands, or hidden prior wallet state. The separate second-machine repetition remains **UNVERIFIED**.
+It required no manual wallet funding, manual Zaino replacement, manually typed Z3 commands, or hidden prior wallet state. At the time this source-checkout experiment was recorded, the separate second-machine repetition remained **UNVERIFIED**. The later Ubuntu/macOS owner reports and their evidence level are recorded at the top of this document and in the current [support matrix](support-matrix.md).

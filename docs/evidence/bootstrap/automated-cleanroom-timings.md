@@ -4,4 +4,4 @@
 - Fresh-run lifecycle integration: **88.10 seconds**, 3/3 tests passed.
 - Preserved-state `npm run nivyr:up`: **5.35 seconds**, reused same sender address; no new rewards/shielding.
 - Preserved-state lifecycle integration: **78.03 seconds**, 3/3 tests passed.
-- Second-machine validation: **UNVERIFIED**.
+- At the time of this run record, second-machine validation was **UNVERIFIED**. A later owner report for Ubuntu and macOS is recorded separately in `docs/evidence/hosts/`; it does not include reproducible logs or host details.

@@ -1,36 +1,51 @@
 # Architecture
 
-Nivyr is an in-process TypeScript helper used from ordinary Vitest tests. In this spike it talks to three existing surfaces:
+Nivyr is an installable TypeScript SDK and CLI for integration-testing Zcash payment applications. It coordinates a disposable local regtest and exposes payment lifecycle observations to a consumer's test runner and application API. Nivyr does not implement consensus, transaction cryptography, indexing, wallet scanning, or a general-purpose test runner.
 
-| Surface | Nivyr uses it for |
+The public package (`@webghost01/nivyr`) ships the Compose and runtime configuration it needs. It stores runtime state under the consuming project's `.nivyr/` directory and uses a digest-pinned wallet-tool container in normal image mode. A source checkout, Rust, and Cargo are not required for the normal package path. A local devtool executable remains available as a maintainer/custom-runtime option.
+
+## Components
+
+| Component | Responsibility |
 |---|---|
-| Zebra JSON-RPC | `generate`, `getblockcount`, and transaction state/pool inspection via `getrawtransaction` |
-| Zaino JSON-RPC and gRPC | independent indexed height; wallet lightwallet protocol connection |
-| `zcash-devtool` CLI | disposable wallet initialization, transaction construction, wallet scan, received amount and memo enhancement |
+| Consumer application/test | Creates invoices and asserts application state through public HTTP/API behavior; it may use Vitest or another Node test runner. |
+| Nivyr CLI and SDK | Starts/stops its project-scoped runtime, controls lifecycle actions, and exposes observations and a small `PaymentAppAdapter` contract. |
+| Zebra | Provides the local chain and JSON-RPC observations, including transaction state and mining. |
+| Zaino | Provides independently observed indexer height and wallet sync transport. |
+| Pinned `zcash-devtool` container | Creates and operates disposable wallets, sends transactions, syncs transactions, and enhances transaction data to reveal memos. |
+| Regtest configuration | Provides an isolated local chain with NU6.3 active at the configured activation height; funds are disposable local regtest funds. |
 
-The package direction adds `src/cli/index.ts`, package-relative Compose/config assets under `docker/`, and a project-local `.nivyr/` runtime with an ownership marker. Package runtime bootstrap is incomplete until the immutable devtool image is published and lifecycle readiness/funding is run from an external tarball.
+Nivyr orchestrates these existing Zcash components. It does not replace them. The wallet image used by the released package is pinned by digest and targets `linux/amd64`; see [image provenance](evidence/devtool-image.json) and [public package acceptance](evidence/public-npm-release.json).
 
-## Lifecycle observations
+## Lifecycle knowledge boundaries
 
-The four knowledge domains remain separate: **chain knowledge != indexer knowledge != wallet knowledge != application knowledge**. A mined transaction does not imply indexing, recipient scanning, memo availability, or application settlement.
+Chain, indexer, wallet, and application observations are separate. The released package's verified scenario follows this shape:
 
-| State | Observer and exact signal | Control / evidence type | Barrier and timeout | Ambiguity / what it does not imply |
-|---|---|---|---|---|
-| `broadcast` | Zebra `getrawtransaction(txid, 1)` returns transaction data; `in_active_chain=false`, no height, 0 confirmations | Created by `pay`; observed from Zebra | No polling in `transaction()`; direct RPC has an 8s request timeout | Wallet send returning a txid alone does not prove Zebra accepted it. A mempool observation does not mean confirmed or indexed. |
-| `mined` | Zebra transaction response has `in_active_chain=true`, numeric height, block hash and confirmations | Controlled by `mine()`; observed from Zebra | `waitForTransaction(txid, predicate)` polls every configured 100ms, default overall 20s | Does not imply Zaino indexed it, wallet scanned it, or app settled it. |
-| `indexed` | Zaino JSON-RPC `getblockcount() >= minedHeight` | Observed independently from Zaino | `waitForIndexer(height)` polls every configured 100ms, default overall 20s | Indexer tip reaching the height does not prove every transaction lookup/query path is ready or the recipient scanned it. |
-| `recipient-unscanned` | After chain and indexer barriers, `observeWallet()` finds no txid in `list-tx --json` for a newly created recipient; test has not invoked `sync()` | Test controls by creating a fresh wallet and withholding explicit `sync`; absence is observed from wallet DB | No timed wait; caller must first establish chain/indexer barriers | Absence is bounded to that wallet's current DB and observation time. It does not prove the transaction is unknown to chain/indexer. |
-| `wallet-synchronized` | `wallet sync` exits successfully; Nivyr records parsed scan completion height when emitted | Explicitly requested; wallet reports success | CLI process timeout 300s; no independent scan-height convergence loop | If CLI emits no range, Nivyr stores the indexer height sampled before sync as a conservative lower bound. That fallback is inferred, not an independently queried wallet scan height. |
-| `payment-detected` | `wallet list-tx --json` contains exact txid and `mined_height` | Observed from wallet structured JSON | Direct observation after sync; no wait helper currently wraps this query | Presence proves wallet DB has a transaction record, not correct business interpretation or memo availability. |
-| `enhanced` | `wallet enhance` exits successfully | Explicitly requested; wallet performs transaction retrieval/decryption | CLI process timeout 300s | Successful exit alone does not guarantee a particular memo was recovered; inspect the observation. |
-| `memo-available` | `wallet list-tx --mode text` has the transaction section and `Memo::Text(...)`; parser returns plaintext | Wallet performs decryption; Nivyr parses resulting text | Direct observation after enhancement; no separate Nivyr wait barrier | Missing/malformed text is returned as `memo: null`; it does not imply no encrypted memo was sent. |
+```text
+broadcast → mined → indexed → merchant wallet unscanned
+→ explicit sync → detected → enhanced → memo available
+```
 
-RPC polling is condition-based, not a fixed delay: the condition is transaction status or indexer height. The 100ms interval is only the sampling cadence. Timeouts produce the last RPC error where available. Wallet subprocesses have a 300s process limit; RPC calls have an 8s request limit. The example merchant readiness probe retries HTTP status until a 5s deadline.
+| State | Observer / signal | What it does not establish |
+|---|---|---|
+| `broadcast` | Zebra returns transaction data before it is in an active block. | It does not establish mining, indexing, scanning, or settlement. |
+| `mined` | Zebra reports active-chain height and confirmations. | It does not establish indexer convergence or wallet scanning. |
+| `indexed` | Zaino's reported height reaches the mined transaction height. | It does not establish that the merchant wallet has scanned the transaction. |
+| `recipient-unscanned` | A fresh recipient wallet has no transaction record before explicit sync. | It does not mean the chain or indexer is unaware of the transaction. |
+| `payment-detected` | After sync, the wallet transaction list contains the transaction. | It does not establish memo availability or correct application settlement. |
+| `memo-available` | After enhancement, wallet transaction details expose the plaintext memo. | It does not establish that an invoice's amount/destination policy is satisfied. |
+| application settlement | The application reports invoice status through its public API. | A mined txid alone is not evidence of expected recipient, amount, or memo. |
 
-Wallet scan height is reported as unknown before the Nivyr-controlled `sync()` call. After successful sync, Nivyr records the highest completed scan height from wallet progress output. If the wallet reports no scan range, Nivyr uses the indexer height sampled immediately before sync as a conservative lower bound; it does not assume that blocks indexed while sync was running have also been scanned. This is an observation from the test-controlled wallet operation, not an app database query.
+`waitForTransaction()` observes Zebra transaction state; `waitForIndexer()` separately waits for Zaino's indexed height. The tests deliberately withhold recipient sync until both boundaries have been observed. If the wallet CLI provides no scan range, Nivyr records a conservative lower bound from the indexer height sampled before sync rather than claiming an independently measured wallet scan height.
 
-## Evidence-backed ownership
+## Application testing and security regression
 
-Nivyr currently removes repeated glue for transaction JSON normalization, exact ZEC/zatoshi conversion, process invocation, mining, independent indexer convergence polling, explicit wallet scan, and the follow-up wallet enhancement required before a memo is visible. The application remains a black box: the reference test uses its HTTP API.
+`PaymentAppAdapter` exposes invoice creation and retrieval so scenario code can exercise an application through public behavior without reading its database. The current packaged scenarios pass against two local reference API patterns: memo-based invoice reconciliation and per-invoice destination reconciliation. They are fixtures, not third-party production integrations.
 
-Nivyr does not run or configure the node stack yet, and it does not provide generic app adapters, arbitrary confirmation policies, a package release, or CI orchestration. Those are not proven necessary by this spike.
+The forged-txid regression demonstrates that an included buggy fixture can settle an invoice when it checks only that a supplied transaction exists and is mined. The corrected reference flow requires its wallet to observe the invoice's expected payment semantics. This does not establish a vulnerability in any outside merchant. See [forged-txid evidence](evidence/packaged-forged-txid.json) and [adapter reuse evidence](evidence/adapter-reuse.json).
+
+## Runtime boundaries and evidence
+
+`npx nivyr up` runs preflight, starts Nivyr-owned pinned containers, prepares the disposable regtest sender, and records READY state. `npx nivyr test` runs Nivyr's packaged lifecycle and reference security suite; consumers use the TypeScript API from their own runner for app-specific tests. `npx nivyr down` stops only the Nivyr-owned Compose project and preserves its wallet and volumes.
+
+The public registry install and full CLI flow have reproducible evidence on Fedora Linux 44 x86_64. Ubuntu and macOS success has been reported by the project owner, but exact environment details and logs were not found; those reports are not yet reproducible or treated as verified support. See the [support matrix](support-matrix.md), [public npm acceptance](evidence/public-npm-release.json), and [packaged lifecycle](evidence/packaged-lifecycle-20261003.json).

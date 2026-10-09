@@ -27,4 +27,4 @@ npx nivyr down
 
 ## Limitations
 
-Only Fedora Linux 44 x86_64 is verified end to end. Ubuntu, macOS, ARM64, Apple Silicon, Windows, WSL, cold-image startup, view-only merchant wallets, reorg handling, and independent third-party application integrations are unverified. The two app patterns are fixtures, not production integrations.
+Only Fedora Linux 44 x86_64 has reproducible end-to-end evidence. The project owner reports successful Nivyr testing on Ubuntu and macOS on 2026-10-09, but exact host details and logs are not retained; these remain unverified reports. ARM64, Apple Silicon, Windows, WSL, cold-image startup, view-only merchant wallets, reorg handling, and independent third-party application integrations are unverified. The two app patterns are fixtures, not production integrations.
