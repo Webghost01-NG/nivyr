@@ -1,8 +1,8 @@
 # Zcash Community Grants Readiness Audit — Nivyr
 
-**Audit date:** 2026-10-13  
-**Repository state reviewed:** `main` at `887c3e9` (same as `origin/main`); working tree was clean before this report.  
-**Released product:** `@webghost01/nivyr@0.1.0`, tag `v0.1.0` at `53a283f`.  
+**Audit date:** 2026-10-13
+**Repository state reviewed:** `main` at `887c3e9` (same as `origin/main`); working tree was clean before this report.
+**Released product:** `@webghost01/nivyr@0.1.0`, tag `v0.1.0` at `53a283f`.
 **Scope:** Readiness and evidence audit only. No application code, package release, tag, or Git history was changed.
 
 ## Verdict
@@ -214,4 +214,3 @@ If the team already has independent written commitments or external run logs not
 - [Zcash integration-tests repository](https://github.com/zcash/integration-tests)
 - [Vitest documentation](https://vitest.dev/)
 - [ZCG proposal #217, declined](https://github.com/ZcashCommunityGrants/zcashcommunitygrants/issues/217)
-
