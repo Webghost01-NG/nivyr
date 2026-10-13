@@ -4,6 +4,8 @@
 
 The official template requires all Terms and Conditions checkboxes and several personal/financial facts. The applicant must review and complete those fields personally. **Do not submit this text as-is.** The repository has no tracked `LICENSE` file even though `package.json` declares `MIT`; that conflict must be resolved before representing that Nivyr is licensed under the MIT terms required by the grant agreement.
 
+This PR also adds a project-level [`CONTRIBUTING.md`](../../CONTRIBUTING.md) for review. It does not accept the template's contribution-policy checkbox on the applicant's behalf.
+
 ## Application title
 
 `Grant Application - Nivyr: Zcash Payment Lifecycle Testing`

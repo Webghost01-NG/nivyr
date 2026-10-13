@@ -47,7 +47,7 @@ The form has 35 body fields (including the terms checkbox group and optional det
 ## Hard blockers
 
 1. **License:** `package.json` declares `MIT`, but no tracked `LICENSE` file exists on `main`. The official form says the grant agreement requires MIT. Resolve the repository license text/rights before selecting MIT or submitting. This documentation-only task does not create or alter a license.
-2. **Contribution process:** no tracked `CONTRIBUTING.md` was found. The official terms require one for new open-source software. Confirm the applicant's agreement to create it for grant-funded additions and include it in the planned handoff.
+2. **Contribution process:** this PR adds a `CONTRIBUTING.md` referencing Nivyr development practice and the relevant `librustzcash` guidance. Applicant should review it and personally accept the applicable form term; keep the file in `main` before filing.
 3. **Applicant identity and experience:** legal/applicant name, GitHub handle confirmation, background, eligibility, and actual delivery capacity are not established by repository evidence.
 4. **Budget:** $12,000 balances only under an unverified model of 240 hours at a $50/hour break-even rate and zero hardware/software/service costs. Confirm the actual rate and costs; otherwise narrow or revise the request and all milestone amounts. Do not report the illustrative rate as the applicant's rate.
 5. **Funding disclosures:** previous ZCG funding, other sources, conflicts, and discovery source require applicant answers.
