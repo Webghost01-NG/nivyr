@@ -1,6 +1,6 @@
 # Nivyr ZCG Budget Worksheet — Draft
 
-**Status:** Not a funding request and not ready for submission. No amount is stated because the repository contains no verified team roster, hourly rates, availability, vendor quotes, or grant-period commitment.
+**Status:** Not a submission-ready budget. The repository contains no verified team roster, hourly rates, availability, vendor quotes, or grant-period commitment. The $12,000 calculation below is a conditional scope-feasibility model only; it is not an applicant-confirmed rate or cost claim.
 **Scope:** Prospective work in [the milestone plan](milestone-plan.md), not reimbursement for the already released `v0.1.0` product.
 **Rule:** Fill every cost from actual named contributors' rates and documented direct-cost estimates. Do not invent rates or use an arbitrary grant total to fit an application form.
 
@@ -17,6 +17,22 @@ The readiness audit estimates these engineering ranges for one experienced engin
 | **Total** | **11–18 weeks** | **440–720** | **Cannot be priced until staffing/rates/direct costs are verified.** |
 
 This is a planning range, not a promise that the full scope should be funded. M1 and the M2 feasibility gate should be approved first. M3/M4 are conditional on demand and partner compatibility evidence.
+
+## Conditional $12,000 working-request model
+
+The original 440–720 hour scope cannot honestly be represented as covered by $12,000 without the applicant's actual rate and any direct costs. To test the requested ceiling, the application draft proposes a much narrower 240-hour plan: one validation gate, one candidate feasibility gate, at most one public-API integration, and a limited reproducibility/maintenance handoff. This is a scope proposal, not a claim that 240 hours is sufficient for every candidate.
+
+| Milestone | Narrowed planning hours | Conditional allocation | Scope boundary |
+|---|---:|---:|---|
+| M1 — independent validation and go/no-go | 50 | $2,500 | Interviews, two independent package evaluations/blocker reports, decision memo. |
+| M2 — external application feasibility | 50 | $2,500 | One approved candidate evaluation; a well-evidenced no-go ends integration work. |
+| M3 — one gated external integration | 100 | $5,000 | Only if prior gates pass; public API/event boundary, no unilateral third-party changes. |
+| M4 — reproducibility and handoff | 40 | $2,000 | Limited checks, evidence, docs, and maintenance handoff. |
+| **Total** | **240** | **$12,000** | **Single-developer planning model.** |
+
+The dollar allocation is exactly `240 hours × $50/hour = $12,000`. **$50/hour is the arithmetic break-even rate implied by the working request, not a verified or recommended applicant rate.** The applicant must replace it with their actual rate basis and available hours. Hardware/software, services, and startup are each provisionally `$0` only if the applicant confirms existing resources suffice and no advance is needed. With direct costs `D`, 240 hours would leave a compensation ceiling of `($12,000 − D) ÷ 240`; if the actual rate/cost/scope does not fit, reduce scope or revise the request before submission. Do not present this model as an agreed budget until those facts are confirmed.
+
+The narrowed M2/M3 estimates are intentionally less than the original 160–240 hour external integration estimate. They are credible only for a bounded feasibility step and one relatively small public-interface test with no required third-party source changes. CipherPay's local-regtest compatibility is unresolved; if a candidate requires broader work, the project must stop or seek an approved scope/budget revision rather than overrun this plan. The four amounts sum to `$12,000`; provisional startup funding is `$0` and is not an extra amount above that total.
 
 ## Rate-based worksheet (complete before submission)
 
